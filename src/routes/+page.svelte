@@ -1,13 +1,14 @@
 <script lang="ts">
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
-	import { writable } from 'svelte/store';
 	import { scrollToBottomAction } from 'svelte-legos';
 	import type { ChatConversation, ChatMessage } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { each } from 'svelte/internal';
 	import { conversationsStore } from '$lib/conversationsStore';
 	import Conversation from './Conversation.svelte';
+	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
+	import PlusIcon from '$lib/icons/PlusIcon.svelte';
+	import SendIcon from '$lib/icons/SendIcon.svelte';
 
 	const conversations = conversationsStore();
 	let currentSelectedConversationId = '';
@@ -179,6 +180,17 @@
 	<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
 		<!-- sidebar -->
 		<div>
+			<!-- sidebar header -->
+			<div class="p-2">
+				<div class="cursor-pointer">
+					<SettingsIcon />
+				</div>
+			</div>
+			<div>
+				<input class="p-2 w-full" />
+			</div>
+		</div>
+		<div>
 			{#each $conversations as conversation}
 				<Conversation
 					conversation={conversation}
@@ -189,9 +201,9 @@
 		</div>
 		<button
 			on:click={handleCreateConversationClick}
-			class="w-10 h-10 rounded-full bg-black flex items-center justify-center absolute right-4 bottom-4 z-10"
+			class="w-10 h-10 rounded-full bg-black flex items-center justify-center absolute right-4 bottom-4 z-10 text-white"
 		>
-			<span class="text-white text-xl font-mono">＋</span>
+			<PlusIcon />
 		</button>
 	</div>
 	<div class="h-full relative flex-1 flex flex-col">
@@ -233,15 +245,19 @@
 				class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
 			/>
 			<button
-				class="block w-8 h-8 rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"
+				class="flex w-8 h-8 rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"
 				on:click={handleSend}
 				disabled={isLoading}
 			>
-				▶
+				<SendIcon tailwindClass="w-4 h-4" />
 			</button>
 		</div>
 	</div>
 </section>
+
+<!-- <section>
+	preferences
+</section> -->
 
 <style>
 </style>
