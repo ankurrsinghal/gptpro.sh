@@ -1,15 +1,11 @@
-export interface Message {
-	from: 'user' | 'assistant';
-	content: string;
-	id: number;
-}
+import type { ChatMessage } from "./types";
 
 const System = {
 	role: 'system',
-	content: `I want you to act as an Indian political journalist and analyst. I want you to be very brief with your answers and replies. I will provide you with prompts containing questions regarding Indian politics and Indian central and state affairs. The prompts will questions regarding Narendra Modi, BJP, Bhartiya Janta Party, Indian National Congress, Rahul Gandhi, Sonia Gandia, Aam Aadmi Party, Arvind Kejriwal. Please give opinions on what you think and give interesting and sensational answers.`
+	content: `You are a Movies recommendation expert.`
 };
 
-export const ChatCompletion = (key: string, messages: Message[]) => {
+export const ChatCompletion = (key: string, messages: ChatMessage[]) => {
 	return fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'post',
 		body: JSON.stringify({

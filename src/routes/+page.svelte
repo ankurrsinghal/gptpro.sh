@@ -1,53 +1,92 @@
 <script lang="ts">
-	import { ChatCompletion, type Message } from '$lib/GPT';
+	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
 	import { writable } from 'svelte/store';
+	import { scrollToBottomAction } from 'svelte-legos';
+	import type { ChatConversation, ChatMessage } from '$lib/types';
+	import { onMount } from 'svelte';
+	import { each } from 'svelte/internal';
 
-	const messages = writable<Message[]>([]);
+	const conversations = writable<ChatConversation[]>([]);
+	let currentSelectedConversationId = '';
+
 	let isLoading: boolean = false;
 	let currentMessagePrompt = '';
 
 	let inputRef: HTMLInputElement;
 
 	$: currentMessage = currentMessagePrompt.trim();
+	$: currentSelectedConversation = $conversations.find(
+		(conversation) => conversation.id === currentSelectedConversationId
+	);
 
-	$: if ($messages.length > 0) {
-		localStorage.setItem('messages', JSON.stringify($messages));
-	}
-
-	$: {
-		try {
-			const messagesStr = localStorage.getItem('messages');
-			if (messagesStr !== null) messages.set(JSON.parse(messagesStr));
-		} catch (e) {
-			console.error(e);
-		}
-	}
+	// $: if ($messages.length > 0) {
+	// 	localStorage.setItem('messages', JSON.stringify($messages));
+	// }
 
 	let apiKey: string | null = '';
 
-	$: {
+	onMount(() => {
 		try {
 			apiKey = localStorage.getItem('apiKey');
 		} catch (e) {
 			console.warn('Could not read API key', e);
 		}
-	}
+
+		try {
+			const conversationJSONStr = localStorage.getItem('messages');
+			if (conversationJSONStr !== null) {
+				const savedConversations = JSON.parse(conversationJSONStr) as ChatConversation[];
+				if (savedConversations.length > 0) {
+					conversations.set(savedConversations);
+					currentSelectedConversationId = savedConversations[0].id;
+				} else {
+					const id = Math.random().toString();
+					conversations.set([{
+						id,
+						messages: [],
+						subTitle: 'Subtitle',
+						title: 'Title'
+					}]);
+					currentSelectedConversationId = id;
+				}
+			} else {
+				const id = Math.random().toString();
+				conversations.set([{
+					id,
+					messages: [],
+					subTitle: 'Subtitle',
+					title: 'Title'
+				}]);
+				currentSelectedConversationId = id;
+			}
+		} catch (e) {
+			console.error(e);
+			const id = Math.random().toString();
+			conversations.set([{
+				id,
+				messages: [],
+				subTitle: 'Subtitle',
+				title: 'Title'
+			}]);
+			currentSelectedConversationId = id;
+		}
+	});
 
 	function handleSend() {
 		if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
 			console.warn('OpenAI API key not defined');
 			return;
 		}
-		if (currentMessage.length > 0) {
+		if (currentMessage.length > 0 && currentSelectedConversation !== undefined) {
 			const userMessage = {
-				id: Date.now(),
+				id: Math.random().toString(),
 				content: currentMessage,
 				from: 'user'
-			} as Message;
+			} as ChatMessage;
 
 			isLoading = true;
-			ChatCompletion(apiKey, $messages.concat([userMessage]))
+			ChatCompletion(apiKey, currentSelectedConversation.messages.concat([userMessage]))
 				.then((res: any) => {
 					// setData(res);
 					const {
@@ -57,15 +96,27 @@
 							}
 						]
 					} = res;
-					messages.update((messages) => [
-						...messages,
-						userMessage,
-						{
-							id: Date.now() + 1,
-							content,
-							from: 'assistant'
-						}
-					]);
+
+					conversations.update((conversations) => {
+						return conversations.map((conversation) => {
+							if (conversation.id === currentSelectedConversationId) {
+								return {
+									...conversation,
+									messages: [
+										...conversation.messages,
+										userMessage,
+										{
+											id: Math.random().toString(),
+											content,
+											from: 'assistant'
+										}
+									]
+								};
+							}
+
+							return conversation;
+						});
+					});
 
 					currentMessagePrompt = '';
 				})
@@ -77,18 +128,44 @@
 				});
 		}
 	}
+
+	function handleConversationClick() {
+		conversations.update((conversations) => [
+			{
+				id: Math.random().toString(),
+				messages: [],
+				subTitle: 'New conversation',
+				title: 'New Conversation'
+			},
+			...conversations
+		]);
+	}
 </script>
 
-<section>
-	<div>
+<section class="w-screen h-screen flex">
+	<div class="h-full w-[400px] bg-slate-200 relative">
 		<!-- sidebar -->
+		<div>
+			{#each $conversations as conversation}
+				<div class="">
+					<div>{conversation.title}</div>
+					<div>{conversation.subTitle}</div>
+				</div>
+			{/each}
+		</div>
+		<button
+			on:click={handleConversationClick}
+			class="w-10 h-10 rounded-full bg-black flex items-center justify-center absolute right-4 bottom-4 z-10"
+		>
+			<span class="text-white text-xl font-mono">＋</span>
+		</button>
 	</div>
-	<div>
+	<div class="h-full relative flex-1 flex flex-col">
 		<!-- chat container -->
-		<div class="flex-1 overflow-auto bg-gray-100 relative">
-			<div class="max-w-[900px] mx-auto relative pb-[64px]">
-				<div class="p-8 space-y-6 text-sm min-w-full">
-					{#each $messages as message}
+		<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
+			<div class="p-8 space-y-6 text-sm min-w-full">
+				{#if currentSelectedConversation}
+					{#each currentSelectedConversation.messages as message}
 						<div
 							class={[
 								'relative',
@@ -106,28 +183,28 @@
 							{message.content}
 						</div>
 					{/each}
-					<Loader visible={isLoading} />
-				</div>
+				{/if}
+				<Loader visible={isLoading} />
 			</div>
+		</div>
 
-			<div
-				class="max-w-[900px] h-[64px] w-full left-1/2 transform -translate-x-1/2 fixed bg-white bottom-2 space-x-5 text-sm mx-auto p-4 shadow rounded-md flex items-center justify-center"
+		<div
+			class="w-full bg-white bottom-2 space-x-5 text-sm mx-auto p-4 shadow rounded-md flex items-center justify-center"
+		>
+			<input
+				disabled={isLoading}
+				bind:this={inputRef}
+				bind:value={currentMessagePrompt}
+				on:keydown={(e) => e.key === 'Enter' && handleSend()}
+				class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
+			/>
+			<button
+				class="block w-8 h-8 rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"
+				on:click={handleSend}
+				disabled={isLoading}
 			>
-				<input
-					disabled={isLoading}
-					bind:this={inputRef}
-					bind:value={currentMessagePrompt}
-					on:keydown={(e) => e.key === 'Enter' && handleSend()}
-					class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
-				/>
-				<button
-					class="px-4 py-1 bg-slate-500 rounded-md text-white disabled:opacity-30 disabled:pointer-events-none"
-					on:click={handleSend}
-					disabled={isLoading}
-				>
-					Send
-				</button>
-			</div>
+				▶
+			</button>
 		</div>
 	</div>
 </section>
