@@ -12,5 +12,10 @@ export function APIKeyStore() {
   }
   const store = writable<string | null>(initialAPIKey);
 
-  return store;
+  function set(apiKey: string) {
+    localStorage.setItem('apiKey', apiKey);
+    store.set(apiKey);
+  }
+
+  return { subscribe: store.subscribe, set };
 }

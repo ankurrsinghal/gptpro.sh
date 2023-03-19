@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
-	import { scrollToBottomAction } from 'svelte-legos';
+	import { scrollToBottomAction, hotKeyAction } from 'svelte-legos';
 	import type { ChatConversation, ChatMessage } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { conversationsStore } from '$lib/conversationsStore';
@@ -10,6 +10,8 @@
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
 	import SendIcon from '$lib/icons/SendIcon.svelte';
 	import { APIKeyStore } from '$lib/APIKeyStore';
+	import CrossIcon from '$lib/icons/CrossIcon.svelte';
+	import { fade } from 'svelte/transition';
 
 	const conversations = conversationsStore();
 	let currentSelectedConversationId = '';
@@ -18,6 +20,8 @@
 	let currentMessagePrompt = '';
 
 	let inputRef: HTMLInputElement;
+
+	let isSettingsOpen = false;
 
 	$: currentMessage = currentMessagePrompt.trim();
 	$: currentSelectedConversation = $conversations.find(
@@ -169,19 +173,19 @@
 	}
 </script>
 
-<section class="w-screen h-screen flex">
+<section class="w-screen h-screen flex" use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}>
 	<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
 		<!-- sidebar -->
-		<div>
+		<div class="bg-white">
 			<!-- sidebar header -->
 			<div class="p-2">
-				<div class="cursor-pointer">
+				<button on:click={() => (isSettingsOpen = true)}>
 					<SettingsIcon />
-				</div>
+				</button>
 			</div>
-			<div>
+			<!-- <div>
 				<input class="p-2 w-full" />
-			</div>
+			</div> -->
 		</div>
 		<div>
 			{#each $conversations as conversation}
@@ -248,12 +252,17 @@
 	</div>
 </section>
 
-<section class="fixed inset-0 z-20">
+{#if isSettingsOpen}
+<section class="fixed inset-0 z-20" transition:fade={{ duration: 150 }}>
 	<div class="absolute w-full h-full bg-black opacity-75"></div>
-	<div class="absolute inset-4 bg-white rounded-md">
-
+	<div class="absolute inset-4 bg-white rounded-md p-4">
+		<button on:click={() => (isSettingsOpen = false)} class="absolute right-4 top-4 border border-black  p-1 rounded-full hover:bg-black hover:text-white cursor-pointer">
+			<CrossIcon />
+		</button>
+		<div>
+			<label class="mr-4" for="api-key">OpenAI API Key: </label>
+			<input id="api-key" class="p-2 bg-slate-100 rounded-md border border-black min-w-[500px]" bind:value={$apiKey} />
+		</div>
 	</div>
 </section>
-
-<style>
-</style>
+{/if}
