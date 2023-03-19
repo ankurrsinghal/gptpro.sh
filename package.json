@@ -37,6 +37,7 @@
 	},
 	"type": "module",
 	"dependencies": {
+		"@popperjs/core": "^2.11.6",
 		"svelte-legos": "^0.1.1"
 	}
 }

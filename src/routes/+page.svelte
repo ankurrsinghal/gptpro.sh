@@ -14,9 +14,12 @@
 	import { fade } from 'svelte/transition';
 	import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
 	import ArchiveIcon from '$lib/icons/ArchiveIcon.svelte';
+	import FunnelIcon from '$lib/icons/FunnelIcon.svelte';
+	import * as Popper from '@popperjs/core';
+	import { filtersStore } from '$lib/filterStore';
 
 	const conversations = conversationsStore();
-	let currentSelectedConversationId = '';
+	let currentSelectedConversationId: string | null = null;
 
 	let isLoading: boolean = false;
 	let currentMessagePrompt = '';
@@ -31,6 +34,7 @@
 	);
 
 	const apiKey = APIKeyStore();
+	const { isArchived: isArchivedFilter } = filtersStore();
 
 	onMount(() => {
 		try {
@@ -144,6 +148,33 @@
 			localStorage.setItem('conversations', JSON.stringify($conversations));
 		}
 	}
+
+	function handleDeleteClick() {
+		//
+	}
+
+	function handleArchiveClick() {
+		if (currentSelectedConversationId !== null) {
+			conversations.archiveConversation(currentSelectedConversationId)
+		}
+	}
+
+	let filterRef: HTMLElement;
+	let filterPopperRef: HTMLElement;
+	let isFilterOpen = false;
+	let filterPopperInstance: Popper.Instance | null = null;
+	function handleFilterClick(e: MouseEvent) {
+		isFilterOpen = !isFilterOpen;
+		if (filterPopperInstance === null) {
+			filterPopperInstance = Popper.createPopper(filterRef, filterPopperRef, {
+				placement: 'bottom',
+			});
+		}
+
+		filterPopperInstance.update();
+	}
+
+	$: filteredConversations = $conversations.filter(conversation => conversation.isArchived === $isArchivedFilter)
 </script>
 
 <section class="w-screen h-screen flex" use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}>
@@ -155,13 +186,16 @@
 				<button on:click={() => (isSettingsOpen = true)}>
 					<SettingsIcon />
 				</button>
+				<button class="ml-auto" on:click={handleFilterClick} bind:this={filterRef}>
+					<FunnelIcon />
+				</button>
 			</div>
 			<!-- <div>
 				<input class="p-2 w-full" />
 			</div> -->
 		</div>
 		<div>
-			{#each $conversations as conversation}
+			{#each filteredConversations as conversation}
 				<Conversation
 					conversation={conversation}
 					handleConversationClick={handleConversationClick}
@@ -176,62 +210,65 @@
 			<PlusIcon />
 		</button>
 	</div>
-	<div class="h-full relative flex-1 flex flex-col">
-		<!-- chat container -->
-		<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
-			<div class="bg-slate-300 border-b border-black">
-				<div class="p-2 flex space-x-3">
-					<button>
-						<DeleteIcon />
-					</button>
-					<button>
-						<ArchiveIcon />
+	<div class="h-full flex-1">
+		{#if currentSelectedConversation}
+			<div class="h-full relative flex flex-col">
+				<!-- chat container -->
+				
+				<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
+					<div class="bg-slate-300 border-b border-black">
+						<div class="p-2 flex space-x-3">
+							<button on:click={handleDeleteClick}>
+								<DeleteIcon />
+							</button>
+							<button on:click={handleArchiveClick}>
+								<ArchiveIcon />
+							</button>
+						</div>
+					</div>
+					<div class="p-8 space-y-6 text-sm min-w-full">
+							{#each currentSelectedConversation.messages as message}
+								<div
+									class={[
+										'relative',
+										'max-w-[85%] lg:max-w-[70%]',
+										'whitespace-pre-wrap',
+										'px-3 py-2',
+										'rounded-md',
+										'shadow-md',
+										'leading-relaxed',
+										message.from === 'user'
+											? 'bg-white text-black ml-auto'
+											: 'bg-blue-100 mr-auto text-black'
+									].join(' ')}
+								>
+									{message.content}
+								</div>
+							{/each}
+						<Loader visible={isLoading} />
+					</div>
+				</div>
+
+				<div
+					class="w-full bg-white bottom-2 space-x-5 text-sm mx-auto p-4 shadow rounded-md flex items-center justify-center"
+				>
+					<input
+						disabled={isLoading}
+						bind:this={inputRef}
+						bind:value={currentMessagePrompt}
+						on:keydown={(e) => e.key === 'Enter' && handleSend()}
+						class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
+					/>
+					<button
+						class="flex w-8 h-8 rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"
+						on:click={handleSend}
+						disabled={isLoading}
+					>
+						<SendIcon tailwindClass="w-4 h-4" />
 					</button>
 				</div>
 			</div>
-			<div class="p-8 space-y-6 text-sm min-w-full">
-				{#if currentSelectedConversation}
-					{#each currentSelectedConversation.messages as message}
-						<div
-							class={[
-								'relative',
-								'max-w-[85%] lg:max-w-[70%]',
-								'whitespace-pre-wrap',
-								'px-3 py-2',
-								'rounded-md',
-								'shadow-md',
-								'leading-relaxed',
-								message.from === 'user'
-									? 'bg-white text-black ml-auto'
-									: 'bg-blue-100 mr-auto text-black'
-							].join(' ')}
-						>
-							{message.content}
-						</div>
-					{/each}
-				{/if}
-				<Loader visible={isLoading} />
-			</div>
-		</div>
-
-		<div
-			class="w-full bg-white bottom-2 space-x-5 text-sm mx-auto p-4 shadow rounded-md flex items-center justify-center"
-		>
-			<input
-				disabled={isLoading}
-				bind:this={inputRef}
-				bind:value={currentMessagePrompt}
-				on:keydown={(e) => e.key === 'Enter' && handleSend()}
-				class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
-			/>
-			<button
-				class="flex w-8 h-8 rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"
-				on:click={handleSend}
-				disabled={isLoading}
-			>
-				<SendIcon tailwindClass="w-4 h-4" />
-			</button>
-		</div>
+		{/if}
 	</div>
 </section>
 
@@ -249,3 +286,13 @@
 	</div>
 </section>
 {/if}
+
+<div bind:this={filterPopperRef} class="shadow bg-white p-2 rounded-md min-w-[200px] {isFilterOpen ? '' : 'hidden'}">
+	<div>Filters</div>
+	<div>
+		<div>
+			<label for="is-archived">Archived</label>
+			<input type="checkbox" id="is-archived" bind:checked={$isArchivedFilter} />
+		</div>
+	</div>
+</div>

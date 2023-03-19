@@ -1,37 +1,54 @@
-import { writable } from "svelte/store";
-import type { ChatConversation, ChatMessage } from "./types";
+import { writable } from 'svelte/store';
+import type { ChatConversation, ChatMessage } from './types';
 
 export function conversationsStore() {
-  const store = writable<ChatConversation[]>([]);
+	const store = writable<ChatConversation[]>([]);
 
-  function update(cb: (conversations: ChatConversation[]) => ChatConversation[]) {
-    store.update(cb);
-  }
+	function update(cb: (conversations: ChatConversation[]) => ChatConversation[]) {
+		store.update(cb);
+	}
 
-  function archiveConversation(id: string) {
-    //
-  }
+	function archiveConversation(id: string) {
+		store.update((conversations) => {
+			return conversations.map((conversation) => {
+				if (conversation.id === id) {
+					return {
+						...conversation,
+						isArchived: true
+					};
+				}
 
-  function deleteConversation(id: string) {
-    //
-  }
+				return conversation;
+			});
+		});
+	}
 
-  function addMessageToConversation(conversationId: string, message: ChatMessage) {
-    //
-  }
+	function deleteConversation(id: string) {
+		//
+	}
 
-  function createNewConversation({ id, subTitle, title }: Partial<ChatConversation> = {}) {
-    store.update((conversations) => [
+	function addMessageToConversation(conversationId: string, message: ChatMessage) {
+		//
+	}
+
+	function createNewConversation({ id, subTitle, title }: Partial<ChatConversation> = {}) {
+		store.update((conversations) => [
 			{
 				id: id || Math.random().toString(),
 				messages: [],
 				subTitle: subTitle || 'New conversation',
 				title: title || 'New Conversation',
-        isArchived: false
+				isArchived: false
 			},
 			...conversations
 		]);
-  }
+	}
 
-  return { subscribe: store.subscribe, update, archiveConversation, addMessageToConversation, createNewConversation };
+	return {
+		subscribe: store.subscribe,
+		update,
+		archiveConversation,
+		addMessageToConversation,
+		createNewConversation
+	};
 }
