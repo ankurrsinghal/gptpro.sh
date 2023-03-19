@@ -167,6 +167,13 @@
 		conversations.createNewConversation(bot.id);
 		isBotsListVisible = false;
 	}
+
+	const botsList = BotsList;
+	let botsListFilterText = '';
+
+	$: filteredBotsList = botsList.filter(
+		(bot) => bot.name.toLowerCase().indexOf(botsListFilterText.toLowerCase()) !== -1
+	);
 </script>
 
 <section
@@ -215,7 +222,7 @@
 		</button>
 
 		{#if isBotsListVisible}
-			<div class="absolute inset-0 z-30">
+			<div class="absolute inset-0 z-30 bg-slate-100">
 				<div class="bg-white p-2 border-b border-black">
 					<!-- bots list header -->
 					<button
@@ -226,9 +233,16 @@
 						<span class="ml-2">Back</span>
 					</button>
 				</div>
+				<div class="bg-slate-100 p-2 border-b border-black">
+					<input
+						placeholder="🔎 Filter Bots"
+						class="text-sm w-full bg-white rounded-md px-2 py-1 border border-black"
+						bind:value={botsListFilterText}
+					/>
+				</div>
 				<!-- bots list -->
 				<div>
-					{#each BotsList as bot}
+					{#each filteredBotsList as bot}
 						<button
 							on:click={() => handleBotClick(bot)}
 							class="bg-slate-200 flex w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors"
