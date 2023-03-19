@@ -9,4 +9,5 @@ export interface ChatConversation {
   title: string;
   subTitle: string;
   messages: ChatMessage[];
+  isArchived: boolean;
 }

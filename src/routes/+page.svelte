@@ -12,6 +12,8 @@
 	import { APIKeyStore } from '$lib/APIKeyStore';
 	import CrossIcon from '$lib/icons/CrossIcon.svelte';
 	import { fade } from 'svelte/transition';
+	import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
+	import ArchiveIcon from '$lib/icons/ArchiveIcon.svelte';
 
 	const conversations = conversationsStore();
 	let currentSelectedConversationId = '';
@@ -40,39 +42,18 @@
 					currentSelectedConversationId = savedConversations[0].id;
 				} else {
 					const id = Math.random().toString();
-					conversations.update(() => [
-						{
-							id,
-							messages: [],
-							subTitle: 'Subtitle',
-							title: 'Title'
-						}
-					]);
+					conversations.createNewConversation({ id });
 					currentSelectedConversationId = id;
 				}
 			} else {
 				const id = Math.random().toString();
-				conversations.update(() => [
-					{
-						id,
-						messages: [],
-						subTitle: 'Subtitle',
-						title: 'Title'
-					}
-				]);
+				conversations.createNewConversation({ id });
 				currentSelectedConversationId = id;
 			}
 		} catch (e) {
 			console.error(e);
 			const id = Math.random().toString();
-			conversations.update(() => [
-				{
-					id,
-					messages: [],
-					subTitle: 'Subtitle',
-					title: 'Title'
-				}
-			]);
+			conversations.createNewConversation({ id });
 			currentSelectedConversationId = id;
 		}
 	});
@@ -151,15 +132,7 @@
 	}
 
 	function handleCreateConversationClick() {
-		conversations.update((conversations) => [
-			{
-				id: Math.random().toString(),
-				messages: [],
-				subTitle: 'New conversation',
-				title: 'New Conversation'
-			},
-			...conversations
-		]);
+		conversations.createNewConversation();
 	}
 
 	function handleConversationClick(conversation: ChatConversation) {
@@ -176,9 +149,9 @@
 <section class="w-screen h-screen flex" use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}>
 	<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
 		<!-- sidebar -->
-		<div class="bg-white">
+		<div class="bg-white border-b border-black">
 			<!-- sidebar header -->
-			<div class="p-2">
+			<div class="p-2 flex">
 				<button on:click={() => (isSettingsOpen = true)}>
 					<SettingsIcon />
 				</button>
@@ -206,6 +179,16 @@
 	<div class="h-full relative flex-1 flex flex-col">
 		<!-- chat container -->
 		<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
+			<div class="bg-slate-300 border-b border-black">
+				<div class="p-2 flex space-x-3">
+					<button>
+						<DeleteIcon />
+					</button>
+					<button>
+						<ArchiveIcon />
+					</button>
+				</div>
+			</div>
 			<div class="p-8 space-y-6 text-sm min-w-full">
 				{#if currentSelectedConversation}
 					{#each currentSelectedConversation.messages as message}
