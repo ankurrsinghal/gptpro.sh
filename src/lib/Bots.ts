@@ -2,7 +2,7 @@ import BotsData from './bots.json';
 import type { Bot } from './types';
 
 function nameToId(name: string) {
-  return name.toLowerCase().split(' ').join('-');
+	return name.toLowerCase().split(' ').join('-');
 }
 
 export const BotsList: Bot[] = BotsData.map((bot) => ({
@@ -12,6 +12,10 @@ export const BotsList: Bot[] = BotsData.map((bot) => ({
 }));
 
 export const BotMap: Map<string, Bot> = BotsList.reduce((map, bot) => {
-  map.set(bot.id, bot);
-  return map;
+	map.set(bot.id, bot);
+	return map;
 }, new Map());
+
+export function GetBotNameByBotId(botId: string): string {
+	return BotMap.get(botId)?.name || 'GPTBot';
+}

@@ -51,7 +51,11 @@
 			} as ChatMessage;
 
 			isLoading = true;
-			ChatCompletion($apiKey, currentSelectedConversation.messages.concat([userMessage]))
+			ChatCompletion(
+				$apiKey,
+				currentSelectedConversation.botId,
+				currentSelectedConversation.messages.concat([userMessage])
+			)
 				.then((res: any) => {
 					// setData(res);
 					const {
@@ -68,7 +72,6 @@
 								if (conversation.messages.length === 0) {
 									return {
 										...conversation,
-										title: userMessage.content,
 										subTitle: userMessage.content,
 										messages: [
 											...conversation.messages,
@@ -111,18 +114,8 @@
 		}
 	}
 
-	function handleCreateConversationClick() {
-		conversations.createNewConversation();
-	}
-
 	function handleConversationClick(conversation: ChatConversation) {
 		currentSelectedConversationId = conversation.id;
-	}
-
-	$: {
-		if ($conversations.length > 0) {
-			localStorage.setItem('conversations', JSON.stringify($conversations));
-		}
 	}
 
 	function handleDeleteClick() {
@@ -137,7 +130,7 @@
 		if (currentSelectedConversationId !== null) {
 			conversations.toggleConversationArchive(currentSelectedConversationId);
 		}
-		
+
 		currentSelectedConversationId = null;
 	}
 
@@ -154,7 +147,7 @@
 					{
 						name: 'offset',
 						options: {
-							offset: [0, 8],
+							offset: [0, 8]
 						}
 					}
 				]
@@ -171,7 +164,8 @@
 	let isBotsListVisible = false;
 
 	function handleBotClick(bot: Bot) {
-
+		conversations.createNewConversation(bot.id);
+		isBotsListVisible = false;
 	}
 </script>
 
@@ -191,7 +185,11 @@
 					<SettingsIcon />
 					<span class="ml-2">Settings</span>
 				</button>
-				<button class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1" on:click={handleFilterClick} bind:this={filterRef}>
+				<button
+					class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+					on:click={handleFilterClick}
+					bind:this={filterRef}
+				>
 					<FunnelIcon />
 					<span class="ml-2">Filters</span>
 				</button>
@@ -215,7 +213,7 @@
 		>
 			<PlusIcon />
 		</button>
-		
+
 		{#if isBotsListVisible}
 			<div class="absolute inset-0 z-30">
 				<div class="bg-white p-2 border-b border-black">
@@ -231,7 +229,10 @@
 				<!-- bots list -->
 				<div>
 					{#each BotsList as bot}
-						<button on:click={() => handleBotClick(bot)} class="bg-slate-200 flex w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors">
+						<button
+							on:click={() => handleBotClick(bot)}
+							class="bg-slate-200 flex w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors"
+						>
 							{bot.name}
 						</button>
 					{/each}
@@ -260,7 +261,9 @@
 								on:click={handleArchiveClick}
 							>
 								<ArchiveIcon />
-								<span class="ml-2">{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span>
+								<span class="ml-2"
+									>{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span
+								>
 							</button>
 						</div>
 					</div>
@@ -334,7 +337,9 @@
 
 <div
 	bind:this={filterPopperRef}
-	class="shadow bg-white p-2 rounded-md min-w-[200px] border border-black mt-2 {isFilterOpen ? '' : 'hidden'}"
+	class="shadow bg-white p-2 rounded-md min-w-[200px] border border-black mt-2 {isFilterOpen
+		? ''
+		: 'hidden'}"
 >
 	<div>Filters</div>
 	<div>

@@ -1,10 +1,16 @@
 import { writable, type Readable, type Writable } from 'svelte/store';
-import type { ChatConversation, ChatMessage } from './types';
+import { GetBotNameByBotId } from './Bots';
+import type { Bot, ChatConversation, ChatMessage } from './types';
 
 export function localStorageMiddleware<P, T extends Readable<P>>(readable: T): T {
 
+  // TODO: make a way to unsubscribe it
   const unsub = readable.subscribe(value => {
-    console.log("middleware", value);
+    try {
+      localStorage.setItem('conversations', JSON.stringify(value));
+    } catch(e) {
+      console.warn(e);
+    }
   });
 
   return readable;
@@ -53,14 +59,15 @@ export function conversationsStore() {
 		//
 	}
 
-	function createNewConversation({ id, subTitle, title }: Partial<ChatConversation> = {}) {
+	function createNewConversation(botId: string) {
 		store.update((conversations) => [
 			{
-				id: id || Math.random().toString(),
+				id: Math.random().toString(),
 				messages: [],
-				subTitle: subTitle || 'New conversation',
-				title: title || 'New Conversation',
-				isArchived: false
+				subTitle: 'New conversation',
+				title: GetBotNameByBotId(botId),
+				isArchived: false,
+        botId
 			},
 			...conversations
 		]);
