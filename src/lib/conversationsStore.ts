@@ -1,20 +1,42 @@
-import { writable } from 'svelte/store';
+import { writable, type Readable, type Writable } from 'svelte/store';
 import type { ChatConversation, ChatMessage } from './types';
 
+export function localStorageMiddleware<P, T extends Readable<P>>(readable: T): T {
+
+  const unsub = readable.subscribe(value => {
+    console.log("middleware", value);
+  });
+
+  return readable;
+}
+
 export function conversationsStore() {
-	const store = writable<ChatConversation[]>([]);
+  let initialConversations: ChatConversation[] = [];
+  try {
+    const conversationJSONStr = localStorage.getItem('conversations');
+    if (conversationJSONStr !== null) {
+      const savedConversations = JSON.parse(conversationJSONStr) as ChatConversation[];
+      if (savedConversations.length > 0) {
+        initialConversations = savedConversations;
+      }
+    }
+  } catch (e) {
+    console.error(e);
+  }
+
+	const store = writable<ChatConversation[]>(initialConversations);
 
 	function update(cb: (conversations: ChatConversation[]) => ChatConversation[]) {
 		store.update(cb);
 	}
 
-	function archiveConversation(id: string) {
+	function toggleConversationArchive(id: string, isArchived?: boolean) {
 		store.update((conversations) => {
 			return conversations.map((conversation) => {
 				if (conversation.id === id) {
 					return {
 						...conversation,
-						isArchived: true
+						isArchived: isArchived === undefined ? !conversation.isArchived : isArchived
 					};
 				}
 
@@ -24,7 +46,7 @@ export function conversationsStore() {
 	}
 
 	function deleteConversation(id: string) {
-		//
+		store.update(conversations => conversations.filter(conversation => conversation.id !== id));
 	}
 
 	function addMessageToConversation(conversationId: string, message: ChatMessage) {
@@ -47,8 +69,9 @@ export function conversationsStore() {
 	return {
 		subscribe: store.subscribe,
 		update,
-		archiveConversation,
+		toggleConversationArchive,
 		addMessageToConversation,
-		createNewConversation
+		createNewConversation,
+    deleteConversation,
 	};
 }

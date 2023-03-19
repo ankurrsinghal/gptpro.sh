@@ -1,3 +1,9 @@
+export interface Bot {
+	id: string;
+	name: string;
+	prompt: string;
+}
+
 export interface ChatMessage {
 	from: 'user' | 'assistant';
 	content: string;
@@ -10,4 +16,5 @@ export interface ChatConversation {
   subTitle: string;
   messages: ChatMessage[];
   isArchived: boolean;
+  botId: string;
 }

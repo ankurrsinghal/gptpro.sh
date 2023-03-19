@@ -2,9 +2,9 @@
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
 	import { scrollToBottomAction, hotKeyAction } from 'svelte-legos';
-	import type { ChatConversation, ChatMessage } from '$lib/types';
+	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
 	import { onMount } from 'svelte';
-	import { conversationsStore } from '$lib/conversationsStore';
+	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
 	import Conversation from './Conversation.svelte';
 	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
@@ -17,8 +17,10 @@
 	import FunnelIcon from '$lib/icons/FunnelIcon.svelte';
 	import * as Popper from '@popperjs/core';
 	import { filtersStore } from '$lib/filterStore';
+	import { BotsList } from '$lib/Bots';
+	import BackIcon from '$lib/icons/BackIcon.svelte';
 
-	const conversations = conversationsStore();
+	const conversations = localStorageMiddleware(conversationsStore());
 	let currentSelectedConversationId: string | null = null;
 
 	let isLoading: boolean = false;
@@ -35,32 +37,6 @@
 
 	const apiKey = APIKeyStore();
 	const { isArchived: isArchivedFilter } = filtersStore();
-
-	onMount(() => {
-		try {
-			const conversationJSONStr = localStorage.getItem('conversations');
-			if (conversationJSONStr !== null) {
-				const savedConversations = JSON.parse(conversationJSONStr) as ChatConversation[];
-				if (savedConversations.length > 0) {
-					conversations.update(() => savedConversations);
-					currentSelectedConversationId = savedConversations[0].id;
-				} else {
-					const id = Math.random().toString();
-					conversations.createNewConversation({ id });
-					currentSelectedConversationId = id;
-				}
-			} else {
-				const id = Math.random().toString();
-				conversations.createNewConversation({ id });
-				currentSelectedConversationId = id;
-			}
-		} catch (e) {
-			console.error(e);
-			const id = Math.random().toString();
-			conversations.createNewConversation({ id });
-			currentSelectedConversationId = id;
-		}
-	});
 
 	function handleSend() {
 		if (!$apiKey || typeof $apiKey !== 'string' || $apiKey.trim().length === 0) {
@@ -150,13 +126,19 @@
 	}
 
 	function handleDeleteClick() {
-		//
+		if (currentSelectedConversationId !== null) {
+			conversations.deleteConversation(currentSelectedConversationId);
+		}
+
+		currentSelectedConversationId = null;
 	}
 
 	function handleArchiveClick() {
 		if (currentSelectedConversationId !== null) {
-			conversations.archiveConversation(currentSelectedConversationId)
+			conversations.toggleConversationArchive(currentSelectedConversationId);
 		}
+		
+		currentSelectedConversationId = null;
 	}
 
 	let filterRef: HTMLElement;
@@ -168,26 +150,50 @@
 		if (filterPopperInstance === null) {
 			filterPopperInstance = Popper.createPopper(filterRef, filterPopperRef, {
 				placement: 'bottom',
+				modifiers: [
+					{
+						name: 'offset',
+						options: {
+							offset: [0, 8],
+						}
+					}
+				]
 			});
 		}
 
 		filterPopperInstance.update();
 	}
 
-	$: filteredConversations = $conversations.filter(conversation => conversation.isArchived === $isArchivedFilter)
+	$: filteredConversations = $conversations.filter(
+		(conversation) => conversation.isArchived === $isArchivedFilter
+	);
+
+	let isBotsListVisible = false;
+
+	function handleBotClick(bot: Bot) {
+
+	}
 </script>
 
-<section class="w-screen h-screen flex" use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}>
+<section
+	class="w-screen h-screen flex"
+	use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}
+>
 	<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
 		<!-- sidebar -->
 		<div class="bg-white border-b border-black">
 			<!-- sidebar header -->
 			<div class="p-2 flex">
-				<button on:click={() => (isSettingsOpen = true)}>
+				<button
+					class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+					on:click={() => (isSettingsOpen = true)}
+				>
 					<SettingsIcon />
+					<span class="ml-2">Settings</span>
 				</button>
-				<button class="ml-auto" on:click={handleFilterClick} bind:this={filterRef}>
+				<button class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1" on:click={handleFilterClick} bind:this={filterRef}>
 					<FunnelIcon />
+					<span class="ml-2">Filters</span>
 				</button>
 			</div>
 			<!-- <div>
@@ -197,54 +203,86 @@
 		<div>
 			{#each filteredConversations as conversation}
 				<Conversation
-					conversation={conversation}
-					handleConversationClick={handleConversationClick}
+					{conversation}
+					{handleConversationClick}
 					isSelected={currentSelectedConversationId === conversation.id}
 				/>
 			{/each}
 		</div>
 		<button
-			on:click={handleCreateConversationClick}
+			on:click={() => (isBotsListVisible = true)}
 			class="w-10 h-10 rounded-full bg-black flex items-center justify-center absolute right-4 bottom-4 z-10 text-white"
 		>
 			<PlusIcon />
 		</button>
+		
+		{#if isBotsListVisible}
+			<div class="absolute inset-0 z-30">
+				<div class="bg-white p-2 border-b border-black">
+					<!-- bots list header -->
+					<button
+						class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+						on:click={() => (isBotsListVisible = false)}
+					>
+						<BackIcon />
+						<span class="ml-2">Back</span>
+					</button>
+				</div>
+				<!-- bots list -->
+				<div>
+					{#each BotsList as bot}
+						<button on:click={() => handleBotClick(bot)} class="bg-slate-200 flex w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors">
+							{bot.name}
+						</button>
+					{/each}
+				</div>
+			</div>
+		{/if}
 	</div>
+
 	<div class="h-full flex-1">
 		{#if currentSelectedConversation}
 			<div class="h-full relative flex flex-col">
 				<!-- chat container -->
-				
+
 				<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
-					<div class="bg-slate-300 border-b border-black">
+					<div class="bg-white border-b border-black">
 						<div class="p-2 flex space-x-3">
-							<button on:click={handleDeleteClick}>
+							<button
+								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+								on:click={handleDeleteClick}
+							>
 								<DeleteIcon />
+								<span class="ml-2">Delete</span>
 							</button>
-							<button on:click={handleArchiveClick}>
+							<button
+								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+								on:click={handleArchiveClick}
+							>
 								<ArchiveIcon />
+								<span class="ml-2">{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span>
 							</button>
 						</div>
 					</div>
 					<div class="p-8 space-y-6 text-sm min-w-full">
-							{#each currentSelectedConversation.messages as message}
-								<div
-									class={[
-										'relative',
-										'max-w-[85%] lg:max-w-[70%]',
-										'whitespace-pre-wrap',
-										'px-3 py-2',
-										'rounded-md',
-										'shadow-md',
-										'leading-relaxed',
-										message.from === 'user'
-											? 'bg-white text-black ml-auto'
-											: 'bg-blue-100 mr-auto text-black'
-									].join(' ')}
-								>
-									{message.content}
-								</div>
-							{/each}
+						{#each currentSelectedConversation.messages as message}
+							<div
+								class={[
+									'relative',
+									'max-w-[85%] lg:max-w-[70%]',
+									'whitespace-pre-wrap',
+									'px-3 py-2',
+									'rounded-md',
+									'shadow-md',
+									'leading-relaxed',
+									message.from === 'user'
+										? 'bg-white text-black ml-auto'
+										: 'bg-blue-100 mr-auto text-black'
+								].join(' ')}
+							>
+								{message.content}
+							</div>
+						{/each}
 						<Loader visible={isLoading} />
 					</div>
 				</div>
@@ -273,21 +311,31 @@
 </section>
 
 {#if isSettingsOpen}
-<section class="fixed inset-0 z-20" transition:fade={{ duration: 150 }}>
-	<div class="absolute w-full h-full bg-black opacity-75"></div>
-	<div class="absolute inset-4 bg-white rounded-md p-4">
-		<button on:click={() => (isSettingsOpen = false)} class="absolute right-4 top-4 border border-black  p-1 rounded-full hover:bg-black hover:text-white cursor-pointer">
-			<CrossIcon />
-		</button>
-		<div>
-			<label class="mr-4" for="api-key">OpenAI API Key: </label>
-			<input id="api-key" class="p-2 bg-slate-100 rounded-md border border-black min-w-[500px]" bind:value={$apiKey} />
+	<section class="fixed inset-0 z-20" transition:fade={{ duration: 150 }}>
+		<div class="absolute w-full h-full bg-black opacity-75" />
+		<div class="absolute inset-4 bg-white rounded-md p-4">
+			<button
+				on:click={() => (isSettingsOpen = false)}
+				class="absolute right-4 top-4 border border-black  p-1 rounded-full hover:bg-black hover:text-white cursor-pointer"
+			>
+				<CrossIcon />
+			</button>
+			<div>
+				<label class="mr-4" for="api-key">OpenAI API Key: </label>
+				<input
+					id="api-key"
+					class="p-2 bg-slate-100 rounded-md border border-black min-w-[500px]"
+					bind:value={$apiKey}
+				/>
+			</div>
 		</div>
-	</div>
-</section>
+	</section>
 {/if}
 
-<div bind:this={filterPopperRef} class="shadow bg-white p-2 rounded-md min-w-[200px] {isFilterOpen ? '' : 'hidden'}">
+<div
+	bind:this={filterPopperRef}
+	class="shadow bg-white p-2 rounded-md min-w-[200px] border border-black mt-2 {isFilterOpen ? '' : 'hidden'}"
+>
 	<div>Filters</div>
 	<div>
 		<div>
