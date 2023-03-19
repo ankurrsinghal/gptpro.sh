@@ -5,8 +5,6 @@ export let conversation: ChatConversation;
 export let handleConversationClick: (conversation: ChatConversation) => void;
 export let isSelected: boolean;
 
-$: console.log("isSelected", isSelected);
-
 </script>
 
 <div

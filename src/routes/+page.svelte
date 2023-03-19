@@ -9,6 +9,7 @@
 	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
 	import SendIcon from '$lib/icons/SendIcon.svelte';
+	import { APIKeyStore } from '$lib/APIKeyStore';
 
 	const conversations = conversationsStore();
 	let currentSelectedConversationId = '';
@@ -23,15 +24,9 @@
 		(conversation) => conversation.id === currentSelectedConversationId
 	);
 
-	let apiKey: string | null = '';
+	const apiKey = APIKeyStore();
 
 	onMount(() => {
-		try {
-			apiKey = localStorage.getItem('apiKey');
-		} catch (e) {
-			console.warn('Could not read API key', e);
-		}
-
 		try {
 			const conversationJSONStr = localStorage.getItem('conversations');
 			if (conversationJSONStr !== null) {
@@ -79,7 +74,7 @@
 	});
 
 	function handleSend() {
-		if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
+		if (!$apiKey || typeof $apiKey !== 'string' || $apiKey.trim().length === 0) {
 			console.warn('OpenAI API key not defined');
 			return;
 		}
@@ -91,7 +86,7 @@
 			} as ChatMessage;
 
 			isLoading = true;
-			ChatCompletion(apiKey, currentSelectedConversation.messages.concat([userMessage]))
+			ChatCompletion($apiKey, currentSelectedConversation.messages.concat([userMessage]))
 				.then((res: any) => {
 					// setData(res);
 					const {
@@ -172,8 +167,6 @@
 			localStorage.setItem('conversations', JSON.stringify($conversations));
 		}
 	}
-
-	$: console.log(currentSelectedConversation)
 </script>
 
 <section class="w-screen h-screen flex">
@@ -255,9 +248,12 @@
 	</div>
 </section>
 
-<!-- <section>
-	preferences
-</section> -->
+<section class="fixed inset-0 z-20">
+	<div class="absolute w-full h-full bg-black opacity-75"></div>
+	<div class="absolute inset-4 bg-white rounded-md">
+
+	</div>
+</section>
 
 <style>
 </style>
