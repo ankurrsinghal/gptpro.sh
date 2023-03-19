@@ -1,11 +1,6 @@
 import { BotMap } from './Bots';
 import type { ChatMessage } from './types';
 
-const System = {
-	role: 'system',
-	content: `You are a Movies recommendation expert.`
-};
-
 function getSystemPromptFromBotId(botId: string) {
 	const bot = BotMap.get(botId);
 	if (!bot) {

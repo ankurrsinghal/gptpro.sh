@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
-	import { scrollToBottomAction, hotKeyAction } from 'svelte-legos';
+	import { scrollToBottomAction, hotKeyAction, textareaAutosizeAction } from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
@@ -26,7 +26,7 @@
 	let isLoading: boolean = false;
 	let currentMessagePrompt = '';
 
-	let inputRef: HTMLInputElement;
+	let inputRef: HTMLTextAreaElement;
 
 	let isSettingsOpen = false;
 
@@ -307,11 +307,12 @@
 				<div
 					class="w-full bg-white bottom-2 space-x-5 text-sm mx-auto p-4 shadow rounded-md flex items-center justify-center"
 				>
-					<input
+					<textarea
+						use:textareaAutosizeAction
+						use:hotKeyAction={{ code: "Enter", cb: () => handleSend() }}
 						disabled={isLoading}
 						bind:this={inputRef}
 						bind:value={currentMessagePrompt}
-						on:keydown={(e) => e.key === 'Enter' && handleSend()}
 						class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
 					/>
 					<button
