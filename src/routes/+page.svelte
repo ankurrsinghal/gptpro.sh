@@ -6,8 +6,10 @@
 	import type { ChatConversation, ChatMessage } from '$lib/types';
 	import { onMount } from 'svelte';
 	import { each } from 'svelte/internal';
+	import { conversationsStore } from '$lib/conversationsStore';
+	import Conversation from './Conversation.svelte';
 
-	const conversations = writable<ChatConversation[]>([]);
+	const conversations = conversationsStore();
 	let currentSelectedConversationId = '';
 
 	let isLoading: boolean = false;
@@ -20,10 +22,6 @@
 		(conversation) => conversation.id === currentSelectedConversationId
 	);
 
-	// $: if ($messages.length > 0) {
-	// 	localStorage.setItem('messages', JSON.stringify($messages));
-	// }
-
 	let apiKey: string | null = '';
 
 	onMount(() => {
@@ -34,41 +32,47 @@
 		}
 
 		try {
-			const conversationJSONStr = localStorage.getItem('messages');
+			const conversationJSONStr = localStorage.getItem('conversations');
 			if (conversationJSONStr !== null) {
 				const savedConversations = JSON.parse(conversationJSONStr) as ChatConversation[];
 				if (savedConversations.length > 0) {
-					conversations.set(savedConversations);
+					conversations.update(() => savedConversations);
 					currentSelectedConversationId = savedConversations[0].id;
 				} else {
 					const id = Math.random().toString();
-					conversations.set([{
-						id,
-						messages: [],
-						subTitle: 'Subtitle',
-						title: 'Title'
-					}]);
+					conversations.update(() => [
+						{
+							id,
+							messages: [],
+							subTitle: 'Subtitle',
+							title: 'Title'
+						}
+					]);
 					currentSelectedConversationId = id;
 				}
 			} else {
 				const id = Math.random().toString();
-				conversations.set([{
-					id,
-					messages: [],
-					subTitle: 'Subtitle',
-					title: 'Title'
-				}]);
+				conversations.update(() => [
+					{
+						id,
+						messages: [],
+						subTitle: 'Subtitle',
+						title: 'Title'
+					}
+				]);
 				currentSelectedConversationId = id;
 			}
 		} catch (e) {
 			console.error(e);
 			const id = Math.random().toString();
-			conversations.set([{
-				id,
-				messages: [],
-				subTitle: 'Subtitle',
-				title: 'Title'
-			}]);
+			conversations.update(() => [
+				{
+					id,
+					messages: [],
+					subTitle: 'Subtitle',
+					title: 'Title'
+				}
+			]);
 			currentSelectedConversationId = id;
 		}
 	});
@@ -100,18 +104,35 @@
 					conversations.update((conversations) => {
 						return conversations.map((conversation) => {
 							if (conversation.id === currentSelectedConversationId) {
-								return {
-									...conversation,
-									messages: [
-										...conversation.messages,
-										userMessage,
-										{
-											id: Math.random().toString(),
-											content,
-											from: 'assistant'
-										}
-									]
-								};
+								if (conversation.messages.length === 0) {
+									return {
+										...conversation,
+										title: userMessage.content,
+										subTitle: userMessage.content,
+										messages: [
+											...conversation.messages,
+											userMessage,
+											{
+												id: Math.random().toString(),
+												content,
+												from: 'assistant'
+											}
+										]
+									};
+								} else {
+									return {
+										...conversation,
+										messages: [
+											...conversation.messages,
+											userMessage,
+											{
+												id: Math.random().toString(),
+												content,
+												from: 'assistant'
+											}
+										]
+									};
+								}
 							}
 
 							return conversation;
@@ -129,7 +150,7 @@
 		}
 	}
 
-	function handleConversationClick() {
+	function handleCreateConversationClick() {
 		conversations.update((conversations) => [
 			{
 				id: Math.random().toString(),
@@ -140,21 +161,34 @@
 			...conversations
 		]);
 	}
+
+	function handleConversationClick(conversation: ChatConversation) {
+		currentSelectedConversationId = conversation.id;
+	}
+
+	$: {
+		if ($conversations.length > 0) {
+			localStorage.setItem('conversations', JSON.stringify($conversations));
+		}
+	}
+
+	$: console.log(currentSelectedConversation)
 </script>
 
 <section class="w-screen h-screen flex">
-	<div class="h-full w-[400px] bg-slate-200 relative">
+	<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
 		<!-- sidebar -->
 		<div>
 			{#each $conversations as conversation}
-				<div class="">
-					<div>{conversation.title}</div>
-					<div>{conversation.subTitle}</div>
-				</div>
+				<Conversation
+					conversation={conversation}
+					handleConversationClick={handleConversationClick}
+					isSelected={currentSelectedConversationId === conversation.id}
+				/>
 			{/each}
 		</div>
 		<button
-			on:click={handleConversationClick}
+			on:click={handleCreateConversationClick}
 			class="w-10 h-10 rounded-full bg-black flex items-center justify-center absolute right-4 bottom-4 z-10"
 		>
 			<span class="text-white text-xl font-mono">＋</span>
