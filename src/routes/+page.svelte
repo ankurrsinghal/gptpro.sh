@@ -1,14 +1,15 @@
 <script>
 import { APIKeyStore } from "$lib/APIKeyStore";
+import Home from "$lib/Home.svelte";
 import Messenger from "$lib/Messenger.svelte";
 
-const apiKey = APIKeyStore();
-
-$: console.log($apiKey);
+$: isValidKey = typeof $APIKeyStore === "string" && $APIKeyStore.startsWith('sk-')
 </script>
 
-{#if $apiKey !== null}
+{#if $APIKeyStore !== null && isValidKey}
 	<Messenger
-		apiKey={$apiKey}
+		apiKey={$APIKeyStore}
 	/>
+{:else}
+	<Home />
 {/if}

@@ -7,7 +7,14 @@ export function localStorageMiddleware<P, T extends Readable<P>>(source: T, key:
 	const decoratedSubscribe = readable<P>(undefined, (set) => {
 		const unsub = sourceSubscribe((value) => {
 			try {
-				localStorage.setItem(key, JSON.stringify(value));
+        if (typeof value === 'string' || typeof value === 'number') {
+          localStorage.setItem(key, value.toString());
+        }
+				else if (typeof value === 'object') {
+					localStorage.setItem(key, JSON.stringify(value));
+				} else {
+					throw new Error("Unknown type!");
+				}
 			} catch (e) {
 				console.warn(e);
 			}
@@ -18,25 +25,6 @@ export function localStorageMiddleware<P, T extends Readable<P>>(source: T, key:
 	});
 
 	return { subscribe: decoratedSubscribe.subscribe, ...rest } as T;
-}
-
-export function mapMiddleware<P, T extends Readable<P[]>>(
-	source: T,
-	key: keyof P
-): Readable<Map<P[keyof P], P>> {
-	const { subscribe: sourceSubscribe, ...rest } = source;
-	const map = new Map<P[keyof P], P>();
-	const decoratedSubscribe = readable(map, (set) => {
-		const unsub = sourceSubscribe((value) => {
-			for (const item of value) {
-				set(new Map(map.set(item[key], item)));
-			}
-		});
-
-		return unsub;
-	});
-
-	return { subscribe: decoratedSubscribe.subscribe, ...rest };
 }
 
 export function conversationsStore() {
@@ -89,7 +77,7 @@ export function conversationsStore() {
 		});
 	}
 
-  function toggleConversationPinned(id: string, isPinned?: boolean) {
+	function toggleConversationPinned(id: string, isPinned?: boolean) {
 		store.update((conversations) => {
 			return conversations.map((conversation) => {
 				if (conversation.id === id) {
@@ -122,7 +110,7 @@ export function conversationsStore() {
 				botId,
 				isArchived: false,
 				isFavorite: false,
-        isPinned: false,
+				isPinned: false
 			},
 			...conversations
 		]);

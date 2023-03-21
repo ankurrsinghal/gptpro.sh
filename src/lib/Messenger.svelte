@@ -6,7 +6,6 @@
 	import {
 		conversationsStore,
 		localStorageMiddleware,
-		mapMiddleware
 	} from '$lib/conversationsStore';
 	import ConversationView from '../lib/ConversationView.svelte';
 	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
@@ -27,6 +26,7 @@
 	import { writable, type Readable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
 	import HeartIcon from './icons/HeartIcon.svelte';
+	import SettingsModal from './SettingsModal.svelte';
 
 	export let apiKey: string;
 
@@ -232,11 +232,8 @@
 	);
 
 	let isSidebarVisible = true;
-
-	$: console.log('Messenger', apiKey);
-
+	
 	$: currentSelectedConversationId = filteredConversations.at(0)?.id || null;
-
   $: pinnedConversations = $conversations.filter(conversation => conversation.isPinned);
 </script>
 
@@ -438,23 +435,5 @@
 </section>
 
 {#if isSettingsOpen}
-	<section class="fixed inset-0 z-20" transition:fade={{ duration: 150 }}>
-		<div class="absolute w-full h-full bg-black opacity-75" />
-		<div class="absolute inset-4 bg-white rounded-md p-4">
-			<button
-				on:click={() => (isSettingsOpen = false)}
-				class="absolute right-4 top-4 border border-black  p-1 rounded-full hover:bg-black hover:text-white cursor-pointer"
-			>
-				<CrossIcon />
-			</button>
-			<div>
-				<label class="mr-4" for="api-key">OpenAI API Key: </label>
-				<input
-					id="api-key"
-					class="p-2 bg-slate-100 rounded-md border border-black min-w-[500px]"
-					bind:value={apiKey}
-				/>
-			</div>
-		</div>
-	</section>
+	<SettingsModal onClose={() => (isSettingsOpen = false)} />
 {/if}
