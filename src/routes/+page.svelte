@@ -16,7 +16,6 @@
 	import SendIcon from '$lib/icons/SendIcon.svelte';
 	import { APIKeyStore } from '$lib/APIKeyStore';
 	import CrossIcon from '$lib/icons/CrossIcon.svelte';
-	import { fade } from 'svelte/transition';
 	import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
 	import ArchiveIcon from '$lib/icons/ArchiveIcon.svelte';
 	import FunnelIcon from '$lib/icons/FunnelIcon.svelte';
@@ -26,6 +25,22 @@
 	import BackIcon from '$lib/icons/BackIcon.svelte';
 	import LeftIcon from '$lib/icons/LeftIcon.svelte';
 	import RightIcon from '$lib/icons/RightIcon.svelte';
+	import type { TransitionConfig } from 'svelte/transition';
+	import { quadInOut } from 'svelte/easing';
+
+	function fade(node: HTMLElement, {
+		delay = 0,
+		duration = 300
+	} = {}): TransitionConfig {
+		return {
+			delay,
+			duration,
+			easing: quadInOut,
+			css: (t: number) => {
+				return `transform: translateX(${(t - 1) * 100}%)`;
+			}
+		};
+	}
 
 	const conversations = localStorageMiddleware(conversationsStore());
 	let currentSelectedConversationId: string | null = null;
@@ -183,12 +198,22 @@
 	);
 
 	let isSidebarVisible = true;
+
+	$: console.log($apiKey);
 </script>
 
 <section
 	class="w-screen h-screen flex"
 	use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}
 >
+	<div class="h-full w-[60px] border-r border-black">
+		<div class="my-2">
+			<a href="/" class="px-2 flex">
+				<img class="shadow" src="/logo.svg" alt="GPTPro.sh" />
+			</a>
+		</div>
+	</div>
+	
 	{#if isSidebarVisible}
 		<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
 			<!-- sidebar -->
@@ -238,7 +263,7 @@
 			</button>
 
 			{#if isBotsListVisible}
-				<div class="absolute inset-0 z-30 bg-slate-100 flex flex-col">
+				<div transition:fade class="absolute inset-0 z-30 bg-slate-100 flex flex-col">
 					<div class="bg-white p-2 border-b border-black">
 						<!-- bots list header -->
 						<button
@@ -262,9 +287,9 @@
 							{#each filteredBotsList as bot}
 								<button
 									on:click={() => handleBotClick(bot)}
-									class="bg-slate-200 flex w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors"
+									class="bg-slate-200 flex flex-col w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors"
 								>
-									{bot.name}
+									<div>{bot.name}</div>
 								</button>
 							{/each}
 						</div>
@@ -312,12 +337,12 @@
 				</div>
 
 				<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
-					<div class="p-8 space-y-6 text-md min-w-full">
+					<div class="p-8 space-y-6 text-md min-w-full flex flex-col">
 						{#each currentSelectedConversation.messages as message}
 							<div
 								class={[
 									'relative',
-									'max-w-[85%] lg:max-w-[70%]',
+									'max-w-[85%] lg:max-w-[60%]',
 									'whitespace-pre-wrap',
 									'px-3 py-2',
 									'rounded-md',
@@ -337,14 +362,14 @@
 				</div>
 
 				<div
-					class="w-full bg-white bottom-2 space-x-5 text-sm mx-auto p-4 shadow rounded-md flex items-center justify-center"
+					class="w-full bg-white bottom-2 space-x-5 text-sm p-4 shadow flex items-center justify-center"
 				>
 					<textarea
 						use:textareaAutosizeAction
-						use:hotKeyAction={{ code: 'Enter', cb: () => handleSend() }}
-						disabled={isLoading}
+						use:hotKeyAction={{ code: 'Enter', cb: handleSend }}
 						bind:this={inputRef}
 						bind:value={currentMessagePrompt}
+						disabled={isLoading}
 						class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
 					/>
 					<button
