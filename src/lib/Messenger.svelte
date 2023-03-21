@@ -23,24 +23,13 @@
 	import { quadInOut } from 'svelte/easing';
 	import MessageView from '$lib/MessageView.svelte';
 	import MessageInputBar from '$lib/MessageInputBar.svelte';
-	import { writable, type Readable } from 'svelte/store';
-	import { fade } from 'svelte/transition';
+	import { writable } from 'svelte/store';
 	import HeartIcon from './icons/HeartIcon.svelte';
 	import SettingsModal from './SettingsModal.svelte';
+	import { slideIn } from './transitions';
+	import BotsListView from './BotsListView.svelte';
 
 	export let apiKey: string;
-
-	function slideIn(_: HTMLElement, { delay = 0, duration = 300 } = {}): TransitionConfig {
-		return {
-			delay,
-			duration,
-			easing: quadInOut,
-			css: (t: number) => {
-				return `transform: translateX(${(t - 1) * 100}%)`;
-			}
-		};
-	}
-
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
 
 	let currentSelectedConversationId: string | null = null;
@@ -144,7 +133,7 @@
 			conversations.deleteConversation(currentSelectedConversationId);
 		}
 
-		// currentSelectedConversationId = null;
+		currentSelectedConversationId = null;
 	}
 
 	function handleArchiveClick() {
@@ -152,7 +141,7 @@
 			conversations.toggleConversationArchive(currentSelectedConversationId);
 		}
 
-		// currentSelectedConversationId = null;
+		currentSelectedConversationId = null;
 	}
 
 	function handleFavoriteClick() {
@@ -224,16 +213,8 @@
 		isBotsListVisible = false;
 	}
 
-	const botsList = BotsList;
-	let botsListFilterText = '';
-
-	$: filteredBotsList = botsList.filter(
-		(bot) => bot.name.toLowerCase().indexOf(botsListFilterText.toLowerCase()) !== -1
-	);
-
 	let isSidebarVisible = true;
 	
-	$: currentSelectedConversationId = filteredConversations.at(0)?.id || null;
   $: pinnedConversations = $conversations.filter(conversation => conversation.isPinned);
 </script>
 
@@ -241,11 +222,17 @@
 	class="w-screen h-screen flex"
 	use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}
 >
-	<div class="h-full w-[60px] border-r border-black">
-		<div class="my-2">
-			<a href="/" class="px-2 flex">
+	<div class="h-full w-[60px] border-r border-black flex flex-col justify-between p-2">
+		<div>
+			<a href="/" class="flex">
 				<img class="shadow" src="/logo.svg" alt="GPTPro.sh" />
 			</a>
+		</div>
+
+		<div>
+			<button class="w-10 h-10 rounded-md bg-white border border-black" on:click={() => (isSettingsOpen = true)}>
+				🔑
+			</button>
 		</div>
 	</div>
 
@@ -256,14 +243,7 @@
 				<!-- sidebar header -->
 				<div class="p-2 flex">
 					<button
-						class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-						on:click={() => (isSettingsOpen = true)}
-					>
-						<SettingsIcon />
-						<span class="ml-2">Settings</span>
-					</button>
-					<button
-						class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1 relative"
+						class="flex border mr-auto border-black items-center justify-center text-sm rounded-md px-2 py-1 relative"
 						on:click={handleFilterClick}
 						bind:this={filterRef}
 					>
@@ -276,7 +256,7 @@
 									e.stopPropagation();
 								}}
 								use:clickOutsideAction={{ cb: handleFilterClickOutside, trigger: filterRef }}
-								class="absolute z-10 text-md text-left top-full shadow-lg bg-white p-2 rounded-md min-w-[200px] border border-black mt-2"
+								class="absolute z-20 text-md text-left top-full left-0 shadow-lg bg-white p-2 rounded-md min-w-[120px] border border-black mt-2"
 							>
 								<div class="space-y-2">
 									<div class="flex items-center space-x-2">
@@ -326,38 +306,10 @@
 			</button>
 
 			{#if isBotsListVisible}
-				<div transition:slideIn class="absolute inset-0 z-30 bg-slate-100 flex flex-col">
-					<div class="bg-white p-2 border-b border-black">
-						<!-- bots list header -->
-						<button
-							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-							on:click={() => (isBotsListVisible = false)}
-						>
-							<BackIcon />
-							<span class="ml-2">Back</span>
-						</button>
-					</div>
-					<div class="bg-slate-100 p-2 border-b border-black">
-						<input
-							placeholder="🔎 Filter Bots"
-							class="text-sm w-full bg-white rounded-md px-2 py-1 border border-black"
-							bind:value={botsListFilterText}
-						/>
-					</div>
-					<!-- bots list -->
-					<div class="flex-1 overflow-auto">
-						<div>
-							{#each filteredBotsList as bot}
-								<button
-									on:click={() => handleBotClick(bot)}
-									class="bg-slate-200 flex flex-col w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors"
-								>
-									<div>{bot.name}</div>
-								</button>
-							{/each}
-						</div>
-					</div>
-				</div>
+				<BotsListView
+					onBackClick={() => (isBotsListVisible = false)}
+					onBotClick={handleBotClick}
+				/>
 			{/if}
 		</div>
 	{/if}

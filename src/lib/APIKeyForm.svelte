@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { onMount } from 'svelte';
 	import { hotKeyAction } from 'svelte-legos';
 	import { SetKeyIfPossible } from './APIKeyStore';
 
@@ -24,11 +25,15 @@
 				.finally(() => {
 					disabled = false;
           setTimeout(() => {
-            inputRef.focus();
+            inputRef?.focus();
           }, 1);
 				});
 		}
 	}
+
+  onMount(() => {
+    inputRef?.focus();
+  })
 </script>
 
 <div class="relative flex items-center w-full">
