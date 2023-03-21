@@ -15,11 +15,19 @@ export let isSelected: boolean;
 >
   <div class="text-md mb-1">{conversation.title}</div>
   <div class="text-sm">{conversation.subTitle}</div>
-  <div class="flex absolute bottom-2 right-2">
-    {#if conversation.isFavorite}
+  {#if conversation.isFavorite}
+    <div class="flex absolute bottom-2 right-2">
       <div class="ml-auto">
         <HeartIcon />
       </div>
-    {/if}
-  </div>
+    </div>
+  {/if}
+
+  {#if conversation.isPinned}
+    <div class="flex absolute top-2 right-2">
+      <div class="ml-auto">
+        📌
+      </div>
+    </div>
+  {/if}
 </div>

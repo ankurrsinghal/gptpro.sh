@@ -3,7 +3,11 @@
 	import Loader from '$lib/Loader.svelte';
 	import { scrollToBottomAction, hotKeyAction, alertAction } from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
-	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
+	import {
+		conversationsStore,
+		localStorageMiddleware,
+		mapMiddleware
+	} from '$lib/conversationsStore';
 	import ConversationView from '../lib/ConversationView.svelte';
 	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
@@ -20,7 +24,7 @@
 	import { quadInOut } from 'svelte/easing';
 	import MessageView from '$lib/MessageView.svelte';
 	import MessageInputBar from '$lib/MessageInputBar.svelte';
-	import { writable } from 'svelte/store';
+	import { writable, type Readable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
 	import HeartIcon from './icons/HeartIcon.svelte';
 
@@ -38,6 +42,7 @@
 	}
 
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
+
 	let currentSelectedConversationId: string | null = null;
 
 	let isLoading: boolean = false;
@@ -150,11 +155,17 @@
 		// currentSelectedConversationId = null;
 	}
 
-  function handleFavoriteClick() {
-    if (currentSelectedConversationId !== null) {
+	function handleFavoriteClick() {
+		if (currentSelectedConversationId !== null) {
 			conversations.toggleConversationFavorite(currentSelectedConversationId);
 		}
-  }
+	}
+
+	function handlePinClick() {
+		if (currentSelectedConversationId !== null) {
+			conversations.toggleConversationPinned(currentSelectedConversationId);
+		}
+	}
 
 	let filterRef: HTMLElement;
 	let isFilterOpen = false;
@@ -164,15 +175,15 @@
 		{ cb, trigger }: { cb: Function; trigger?: HTMLElement }
 	) {
 		const handleClick = (event: MouseEvent) => {
-      const { target } = event;
+			const { target } = event;
 			if (target !== null && !node.contains(target as Node)) {
-        if (trigger) {
-          if (!trigger.contains(target as Node)) {
-            cb();
-          }
-        } else {
-          cb();
-        }
+				if (trigger) {
+					if (!trigger.contains(target as Node)) {
+						cb();
+					}
+				} else {
+					cb();
+				}
 			}
 		};
 
@@ -193,20 +204,18 @@
 		isFilterOpen = false;
 	}
 
-	$: filteredConversations = $conversations.filter(
-		(conversation) => {
-      const isArchived = $isArchivedFilter;
-      const isFavorite = $isFavoriteFilter;
-      
-      let check = conversation.isArchived === isArchived;
-      
-      if (isFavorite === true) {
-        check = check && conversation.isFavorite;
-      }
+	$: filteredConversations = $conversations.filter((conversation) => {
+		const isArchived = $isArchivedFilter;
+		const isFavorite = $isFavoriteFilter;
 
-      return check;
-    }
-	);
+		let check = conversation.isArchived === isArchived;
+
+		if (isFavorite === true) {
+			check = check && conversation.isFavorite;
+		}
+
+		return check && !conversation.isPinned;
+	});
 
 	let isBotsListVisible = false;
 
@@ -227,6 +236,8 @@
 	$: console.log('Messenger', apiKey);
 
 	$: currentSelectedConversationId = filteredConversations.at(0)?.id || null;
+
+  $: pinnedConversations = $conversations.filter(conversation => conversation.isPinned);
 </script>
 
 <section
@@ -275,7 +286,7 @@
 										<label for="is-archived" class="cursor-pointer">Archived</label>
 										<input type="checkbox" id="is-archived" bind:checked={$isArchivedFilter} />
 									</div>
-                  <div class="flex items-center space-x-2">
+									<div class="flex items-center space-x-2">
 										<label for="is-favorite" class="cursor-pointer">Favorite</label>
 										<input type="checkbox" id="is-favorite" bind:checked={$isFavoriteFilter} />
 									</div>
@@ -295,6 +306,13 @@
 				</div> -->
 			</div>
 			<div>
+				{#each pinnedConversations as conversation}
+					<ConversationView
+						{conversation}
+						{handleConversationClick}
+						isSelected={currentSelectedConversationId === conversation.id}
+					/>
+				{/each}
 				{#each filteredConversations as conversation}
 					<ConversationView
 						{conversation}
@@ -363,6 +381,15 @@
 						{/if}
 						<button
 							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+							on:click={handlePinClick}
+						>
+							<span>📌</span>
+							<span class="ml-2"
+								>{currentSelectedConversation.isPinned ? 'Unpin' : 'Pin'}</span
+							>
+						</button>
+						<button
+							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
 							use:alertAction={{
 								title: 'Are you sure?',
 								description: "You won't be able to recover this conversation!",
@@ -381,14 +408,12 @@
 								>{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span
 							>
 						</button>
-            <button
+						<button
 							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
 							on:click={handleFavoriteClick}
 						>
 							<HeartIcon />
-							<span class="ml-2"
-								>{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}</span
-							>
+							<span class="ml-2">{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}</span>
 						</button>
 					</div>
 				</div>

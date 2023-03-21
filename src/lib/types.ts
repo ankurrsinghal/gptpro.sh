@@ -18,4 +18,5 @@ export interface ChatConversation {
   botId: string;
   isArchived: boolean;
   isFavorite: boolean;
+  isPinned: boolean;
 }

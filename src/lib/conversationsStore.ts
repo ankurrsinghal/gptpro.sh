@@ -20,6 +20,25 @@ export function localStorageMiddleware<P, T extends Readable<P>>(source: T, key:
 	return { subscribe: decoratedSubscribe.subscribe, ...rest } as T;
 }
 
+export function mapMiddleware<P, T extends Readable<P[]>>(
+	source: T,
+	key: keyof P
+): Readable<Map<P[keyof P], P>> {
+	const { subscribe: sourceSubscribe, ...rest } = source;
+	const map = new Map<P[keyof P], P>();
+	const decoratedSubscribe = readable(map, (set) => {
+		const unsub = sourceSubscribe((value) => {
+			for (const item of value) {
+				set(new Map(map.set(item[key], item)));
+			}
+		});
+
+		return unsub;
+	});
+
+	return { subscribe: decoratedSubscribe.subscribe, ...rest };
+}
+
 export function conversationsStore() {
 	let initialConversations: ChatConversation[] = [];
 	try {
@@ -55,13 +74,28 @@ export function conversationsStore() {
 		});
 	}
 
-  function toggleConversationFavorite(id: string, isFavorite?: boolean) {
+	function toggleConversationFavorite(id: string, isFavorite?: boolean) {
 		store.update((conversations) => {
 			return conversations.map((conversation) => {
 				if (conversation.id === id) {
 					return {
 						...conversation,
 						isFavorite: isFavorite === undefined ? !conversation.isFavorite : isFavorite
+					};
+				}
+
+				return conversation;
+			});
+		});
+	}
+
+  function toggleConversationPinned(id: string, isPinned?: boolean) {
+		store.update((conversations) => {
+			return conversations.map((conversation) => {
+				if (conversation.id === id) {
+					return {
+						...conversation,
+						isPinned: isPinned === undefined ? !conversation.isPinned : isPinned
 					};
 				}
 
@@ -86,8 +120,9 @@ export function conversationsStore() {
 				subTitle: 'New conversation',
 				title: GetBotNameByBotId(botId),
 				botId,
-        isArchived: false,
-        isFavorite: false,
+				isArchived: false,
+				isFavorite: false,
+        isPinned: false,
 			},
 			...conversations
 		]);
@@ -97,7 +132,8 @@ export function conversationsStore() {
 		subscribe: store.subscribe,
 		update,
 		toggleConversationArchive,
-    toggleConversationFavorite,
+		toggleConversationFavorite,
+		toggleConversationPinned,
 		addMessageToConversation,
 		createNewConversation,
 		deleteConversation
