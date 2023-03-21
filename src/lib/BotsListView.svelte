@@ -28,7 +28,7 @@
 			<span class="ml-2">Back</span>
 		</SecondaryButton>
 	</div>
-	<div class="bg-slate-100 p-2 border-b border-[var(--border-color)]">
+	<div class="bg-gray-100 p-2 border-b border-[var(--border-color)]">
 		<input
 			bind:this={ref.current}
 			placeholder="🔎 Filter Bots"
@@ -42,7 +42,7 @@
 			{#each filteredBotsList as bot}
 				<button
 					on:click={() => onBotClick(bot)}
-					class="text-sm bg-white flex flex-col w-full p-4 border-b text-left border-[var(--border-color)] font-normal hover:bg-slate-100 cursor-pointer transition-colors"
+					class="text-sm bg-white flex flex-col w-full p-4 border-b text-left border-[var(--border-color)] font-normal hover:bg-gray-100 cursor-pointer transition-colors"
 				>
 					<div>{bot.name}</div>
 				</button>

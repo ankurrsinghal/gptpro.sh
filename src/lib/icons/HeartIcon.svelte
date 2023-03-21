@@ -3,9 +3,11 @@
 	import BaseIcon from './BaseIcon.svelte';
 
 	export let size: IconSize = 'medium';
+	export let fill: string = 'none';
+	export let stroke: string = 'currentColor';
 </script>
 
-<BaseIcon {size}>
+<BaseIcon {size} {fill} {stroke}>
 	<path
 		stroke-linecap="round"
 		stroke-linejoin="round"

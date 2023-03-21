@@ -1,8 +1,7 @@
 <script lang="ts">
-import type { ChatMessage } from "$lib/types";
+	import type { ChatMessage } from '$lib/types';
 
-export let message: ChatMessage;
-  
+	export let message: ChatMessage;
 </script>
 
 <div
@@ -13,9 +12,12 @@ export let message: ChatMessage;
 		'px-3 py-2',
 		'rounded-md',
 		'shadow-md',
+		'shadow-gray-100',
 		'leading-relaxed',
-		'border border-gray-300',
-		message.from === 'user' ? 'bg-cyan-100 text-black ml-auto' : 'bg-white mr-auto text-black'
+		'border border-[var(--border-color)]',
+		'text-sm',
+		'font-normal',
+		message.from === 'user' ? 'bg-gray-100 text-black ml-auto' : 'bg-white mr-auto text-black'
 	].join(' ')}
 >
 	{message.content}

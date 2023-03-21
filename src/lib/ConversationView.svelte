@@ -19,7 +19,7 @@
 	{#if conversation.isFavorite}
 		<div class="flex absolute bottom-2 right-2">
 			<div class="ml-auto">
-				<HeartIcon />
+				<HeartIcon fill="red" stroke="none" />
 			</div>
 		</div>
 	{/if}

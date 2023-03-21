@@ -229,12 +229,15 @@
 	>
 		<div>
 			<a href="/" class="flex">
-				<img class="shadow" src="/logo.svg" alt="GPTPro.sh" />
+				<img src="/logo.svg" alt="GPTPro.sh" />
 			</a>
 		</div>
 
 		<div>
-			<button class={SecondaryButtonStyles + ' w-10 h-10'} on:click={() => (isSettingsOpen = true)}>
+			<button
+				class={SecondaryButtonStyles + ' w-10 h-10 text-xl'}
+				on:click={() => (isSettingsOpen = true)}
+			>
 				🔑
 			</button>
 		</div>
@@ -242,13 +245,17 @@
 
 	{#if isSidebarVisible}
 		<div
-			class="absolute z-10 w-full h-full bg-gray-100 overflow-auto border-r border-[var(--border-color)] flex flex-col md:left-0 md:relative md:w-[300px]"
+			class="absolute z-10 w-full h-full bg-white overflow-auto border-r border-[var(--border-color)] flex flex-col md:left-0 md:relative md:w-[300px] lg:w-[350px]"
 		>
 			<!-- sidebar -->
 			<div class="bg-white border-b border-[var(--border-color)]">
 				<!-- sidebar header -->
 				<div class="p-2 flex justify-between">
-					<button class={SecondaryButtonStyles} on:click={handleFilterClick} bind:this={filterRef}>
+					<button
+						class={SecondaryButtonStyles + ' relative'}
+						on:click={handleFilterClick}
+						bind:this={filterRef}
+					>
 						<FunnelIcon />
 						<span class="ml-2">Filters</span>
 						{#if isFilterOpen}
@@ -364,8 +371,8 @@
 					</div>
 				</div>
 
-				<div class="overflow-auto bg-gray-100 relative flex-1" use:scrollToBottomAction>
-					<div class="p-8 space-y-6 text-md min-w-full flex flex-col">
+				<div class="overflow-auto bg-white relative flex-1" use:scrollToBottomAction>
+					<div class="p-8 space-y-10 text-md min-w-full flex flex-col">
 						{#each currentSelectedConversation.messages as message}
 							<MessageView {message} />
 						{/each}
