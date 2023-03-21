@@ -10,7 +10,8 @@
 		"test:unit": "vitest",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
-		"deploy": "npm run build && ./deploy.sh"
+		"deploy": "npm run build && ./deploy.sh",
+		"deploy:prod": "npm run build && ./deploy-prod.sh"
 	},
 	"devDependencies": {
 		"@fontsource/fira-mono": "^4.5.10",

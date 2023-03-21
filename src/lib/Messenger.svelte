@@ -216,7 +216,7 @@
 </script>
 
 <section
-	class="w-screen h-screen flex"
+	class="w-full h-full flex overflow-hidden"
 	use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}
 >
 	<div class="h-full w-[60px] border-r border-black justify-between p-2 hidden md:flex md:flex-col">
@@ -234,7 +234,7 @@
 	</div>
 
 	{#if isSidebarVisible}
-		<div class="absolute left-0 z-10 right-0 h-full bg-gray-100 overflow-auto border-r border-black flex flex-col md:left-0 md:relative md:w-[300px]">
+		<div class="absolute z-10 w-full h-full bg-gray-100 overflow-auto border-r border-black flex flex-col md:left-0 md:relative md:w-[300px]">
 			<!-- sidebar -->
 			<div class="bg-white border-b border-black">
 				<!-- sidebar header -->
@@ -369,7 +369,7 @@
 					</div>
 				</div>
 
-				<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
+				<div class="overflow-auto bg-gray-100 relative flex-1" use:scrollToBottomAction>
 					<div class="p-8 space-y-6 text-md min-w-full flex flex-col">
 						{#each currentSelectedConversation.messages as message}
 							<MessageView {message} />
