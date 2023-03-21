@@ -9,13 +9,13 @@
 
 <div
 	on:click={() => handleConversationClick(conversation)}
-	class="relative p-4 border-b border-[var(--border-color)] hover:bg-slate-100 cursor-pointer transition-colors {isSelected
-		? 'bg-slate-100'
+	class="relative px-6 py-4 border-b border-[var(--border-color)] hover:bg-gray-100 cursor-pointer transition-colors {isSelected
+		? 'bg-gray-100'
 		: 'bg-white'}"
 	aria-hidden
 >
-	<div class="text-md mb-1">{conversation.title}</div>
-	<div class="text-sm">{conversation.subTitle}</div>
+	<div class="text-md mb-2 font-[500]">{conversation.title}</div>
+	<div class="text-xs text-[var(--light-text-color)]">{conversation.subTitle}</div>
 	{#if conversation.isFavorite}
 		<div class="flex absolute bottom-2 right-2">
 			<div class="ml-auto">

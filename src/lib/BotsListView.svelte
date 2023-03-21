@@ -42,7 +42,7 @@
 			{#each filteredBotsList as bot}
 				<button
 					on:click={() => onBotClick(bot)}
-					class="bg-white flex flex-col w-full p-4 border-b text-left border-black hover:bg-slate-100 cursor-pointer transition-colors"
+					class="text-sm bg-white flex flex-col w-full p-4 border-b text-left border-[var(--border-color)] font-normal hover:bg-slate-100 cursor-pointer transition-colors"
 				>
 					<div>{bot.name}</div>
 				</button>
