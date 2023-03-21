@@ -1,34 +1,38 @@
-import { writable, type Readable, type Writable } from 'svelte/store';
+import { readable, writable, type Readable, type Writable } from 'svelte/store';
 import { GetBotNameByBotId } from './Bots';
 import type { Bot, ChatConversation, ChatMessage } from './types';
 
-export function localStorageMiddleware<P, T extends Readable<P>>(readable: T): T {
+export function localStorageMiddleware<P, T extends Readable<P>>(source: T, key: string): T {
+	const { subscribe: sourceSubscribe, ...rest } = source;
+	const decoratedSubscribe = readable<P>(undefined, (set) => {
+		const unsub = sourceSubscribe((value) => {
+			try {
+				localStorage.setItem(key, JSON.stringify(value));
+			} catch (e) {
+				console.warn(e);
+			}
+			set(value);
+		});
 
-  // TODO: make a way to unsubscribe it
-  const unsub = readable.subscribe(value => {
-    try {
-      localStorage.setItem('conversations', JSON.stringify(value));
-    } catch(e) {
-      console.warn(e);
-    }
-  });
+		return unsub;
+	});
 
-  return readable;
+	return { subscribe: decoratedSubscribe.subscribe, ...rest } as T;
 }
 
 export function conversationsStore() {
-  let initialConversations: ChatConversation[] = [];
-  try {
-    const conversationJSONStr = localStorage.getItem('conversations');
-    if (conversationJSONStr !== null) {
-      const savedConversations = JSON.parse(conversationJSONStr) as ChatConversation[];
-      if (savedConversations.length > 0) {
-        initialConversations = savedConversations;
-      }
-    }
-  } catch (e) {
-    console.error(e);
-  }
+	let initialConversations: ChatConversation[] = [];
+	try {
+		const conversationJSONStr = localStorage.getItem('conversations');
+		if (conversationJSONStr !== null) {
+			const savedConversations = JSON.parse(conversationJSONStr) as ChatConversation[];
+			if (savedConversations.length > 0) {
+				initialConversations = savedConversations;
+			}
+		}
+	} catch (e) {
+		console.error(e);
+	}
 
 	const store = writable<ChatConversation[]>(initialConversations);
 
@@ -52,7 +56,7 @@ export function conversationsStore() {
 	}
 
 	function deleteConversation(id: string) {
-		store.update(conversations => conversations.filter(conversation => conversation.id !== id));
+		store.update((conversations) => conversations.filter((conversation) => conversation.id !== id));
 	}
 
 	function addMessageToConversation(conversationId: string, message: ChatMessage) {
@@ -67,7 +71,7 @@ export function conversationsStore() {
 				subTitle: 'New conversation',
 				title: GetBotNameByBotId(botId),
 				isArchived: false,
-        botId
+				botId
 			},
 			...conversations
 		]);
@@ -79,6 +83,6 @@ export function conversationsStore() {
 		toggleConversationArchive,
 		addMessageToConversation,
 		createNewConversation,
-    deleteConversation,
+		deleteConversation
 	};
 }

@@ -1,12 +1,7 @@
 <script lang="ts">
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
-	import {
-		scrollToBottomAction,
-		hotKeyAction,
-		textareaAutosizeAction,
-		alertAction
-	} from 'svelte-legos';
+	import { scrollToBottomAction, hotKeyAction, alertAction } from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
 	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
 	import ConversationView from '../lib/ConversationView.svelte';
@@ -29,7 +24,7 @@
 	import MessageInputBar from '$lib/MessageInputBar.svelte';
 	import { writable } from 'svelte/store';
 
-	function fade(node: HTMLElement, { delay = 0, duration = 300 } = {}): TransitionConfig {
+	function fade(_: HTMLElement, { delay = 0, duration = 300 } = {}): TransitionConfig {
 		return {
 			delay,
 			duration,
@@ -40,7 +35,7 @@
 		};
 	}
 
-	const conversations = localStorageMiddleware(conversationsStore());
+	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
 	let currentSelectedConversationId: string | null = null;
 
 	let isLoading: boolean = false;
