@@ -8,12 +8,10 @@
 		alertAction
 	} from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
-	import { onMount } from 'svelte';
 	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
-	import Conversation from './Conversation.svelte';
+	import ConversationView from '../lib/ConversationView.svelte';
 	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
-	import SendIcon from '$lib/icons/SendIcon.svelte';
 	import { APIKeyStore } from '$lib/APIKeyStore';
 	import CrossIcon from '$lib/icons/CrossIcon.svelte';
 	import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
@@ -27,11 +25,11 @@
 	import RightIcon from '$lib/icons/RightIcon.svelte';
 	import type { TransitionConfig } from 'svelte/transition';
 	import { quadInOut } from 'svelte/easing';
+	import MessageView from '$lib/MessageView.svelte';
+	import MessageInputBar from '$lib/MessageInputBar.svelte';
+	import { writable } from 'svelte/store';
 
-	function fade(node: HTMLElement, {
-		delay = 0,
-		duration = 300
-	} = {}): TransitionConfig {
+	function fade(node: HTMLElement, { delay = 0, duration = 300 } = {}): TransitionConfig {
 		return {
 			delay,
 			duration,
@@ -46,13 +44,12 @@
 	let currentSelectedConversationId: string | null = null;
 
 	let isLoading: boolean = false;
-	let currentMessagePrompt = '';
-
-	let inputRef: HTMLTextAreaElement;
+	const currentMessagePrompt = writable('');
+	const inputRef = writable<HTMLTextAreaElement | null>(null);
 
 	let isSettingsOpen = false;
 
-	$: currentMessage = currentMessagePrompt.trim();
+	$: currentMessage = $currentMessagePrompt.trim();
 	$: currentSelectedConversation = $conversations.find(
 		(conversation) => conversation.id === currentSelectedConversationId
 	);
@@ -65,6 +62,7 @@
 			console.warn('OpenAI API key not defined');
 			return;
 		}
+
 		if (currentMessage.length > 0 && currentSelectedConversation !== undefined) {
 			const userMessage = {
 				id: Math.random().toString(),
@@ -125,12 +123,12 @@
 						});
 					});
 
-					currentMessagePrompt = '';
+					currentMessagePrompt.set('');
 				})
 				.finally(() => {
 					isLoading = false;
 					setTimeout(() => {
-						inputRef.focus();
+						$inputRef?.focus();
 					}, 1);
 				});
 		}
@@ -213,7 +211,7 @@
 			</a>
 		</div>
 	</div>
-	
+
 	{#if isSidebarVisible}
 		<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
 			<!-- sidebar -->
@@ -248,7 +246,7 @@
 			</div>
 			<div>
 				{#each filteredConversations as conversation}
-					<Conversation
+					<ConversationView
 						{conversation}
 						{handleConversationClick}
 						isSelected={currentSelectedConversationId === conversation.id}
@@ -339,47 +337,17 @@
 				<div class="overflow-auto bg-gray-100 relative max-h-full flex-1" use:scrollToBottomAction>
 					<div class="p-8 space-y-6 text-md min-w-full flex flex-col">
 						{#each currentSelectedConversation.messages as message}
-							<div
-								class={[
-									'relative',
-									'max-w-[85%] lg:max-w-[60%]',
-									'whitespace-pre-wrap',
-									'px-3 py-2',
-									'rounded-md',
-									'shadow-md',
-									'leading-relaxed',
-									'border border-gray-300',
-									message.from === 'user'
-										? 'bg-cyan-100 text-black ml-auto'
-										: 'bg-white mr-auto text-black'
-								].join(' ')}
-							>
-								{message.content}
-							</div>
+							<MessageView {message} />
 						{/each}
 						<Loader visible={isLoading} />
 					</div>
 				</div>
-
-				<div
-					class="w-full bg-white bottom-2 space-x-5 text-sm p-4 shadow flex items-center justify-center"
-				>
-					<textarea
-						use:textareaAutosizeAction
-						use:hotKeyAction={{ code: 'Enter', cb: handleSend }}
-						bind:this={inputRef}
-						bind:value={currentMessagePrompt}
-						disabled={isLoading}
-						class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
-					/>
-					<button
-						class="flex w-8 h-8 rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"
-						on:click={handleSend}
-						disabled={isLoading}
-					>
-						<SendIcon tailwindClass="w-4 h-4" />
-					</button>
-				</div>
+				<MessageInputBar
+					disabled={isLoading}
+					onSend={handleSend}
+					value={currentMessagePrompt}
+					ref={inputRef}
+				/>
 			</div>
 		{/if}
 	</div>
