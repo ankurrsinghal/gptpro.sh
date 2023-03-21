@@ -14,7 +14,8 @@ export interface ChatConversation {
   id: string;
   title: string;
   subTitle: string;
-  messages: ChatMessage[];
-  isArchived: boolean;
+  messages: ChatMessage[];  
   botId: string;
+  isArchived: boolean;
+  isFavorite: boolean;
 }

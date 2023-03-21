@@ -55,6 +55,21 @@ export function conversationsStore() {
 		});
 	}
 
+  function toggleConversationFavorite(id: string, isFavorite?: boolean) {
+		store.update((conversations) => {
+			return conversations.map((conversation) => {
+				if (conversation.id === id) {
+					return {
+						...conversation,
+						isFavorite: isFavorite === undefined ? !conversation.isFavorite : isFavorite
+					};
+				}
+
+				return conversation;
+			});
+		});
+	}
+
 	function deleteConversation(id: string) {
 		store.update((conversations) => conversations.filter((conversation) => conversation.id !== id));
 	}
@@ -70,8 +85,9 @@ export function conversationsStore() {
 				messages: [],
 				subTitle: 'New conversation',
 				title: GetBotNameByBotId(botId),
-				isArchived: false,
-				botId
+				botId,
+        isArchived: false,
+        isFavorite: false,
 			},
 			...conversations
 		]);
@@ -81,6 +97,7 @@ export function conversationsStore() {
 		subscribe: store.subscribe,
 		update,
 		toggleConversationArchive,
+    toggleConversationFavorite,
 		addMessageToConversation,
 		createNewConversation,
 		deleteConversation

@@ -7,12 +7,10 @@
 	import ConversationView from '../lib/ConversationView.svelte';
 	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
-	import { APIKeyStore } from '$lib/APIKeyStore';
 	import CrossIcon from '$lib/icons/CrossIcon.svelte';
 	import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
 	import ArchiveIcon from '$lib/icons/ArchiveIcon.svelte';
 	import FunnelIcon from '$lib/icons/FunnelIcon.svelte';
-	import * as Popper from '@popperjs/core';
 	import { filtersStore } from '$lib/filterStore';
 	import { BotsList } from '$lib/Bots';
 	import BackIcon from '$lib/icons/BackIcon.svelte';
@@ -24,8 +22,9 @@
 	import MessageInputBar from '$lib/MessageInputBar.svelte';
 	import { writable } from 'svelte/store';
 	import { fade } from 'svelte/transition';
+	import HeartIcon from './icons/HeartIcon.svelte';
 
-  export let apiKey: string;
+	export let apiKey: string;
 
 	function slideIn(_: HTMLElement, { delay = 0, duration = 300 } = {}): TransitionConfig {
 		return {
@@ -52,7 +51,7 @@
 		(conversation) => conversation.id === currentSelectedConversationId
 	);
 
-	const { isArchived: isArchivedFilter } = filtersStore();
+	const { isArchived: isArchivedFilter, isFavorite: isFavoriteFilter } = filtersStore();
 
 	function handleSend() {
 		if (!apiKey || typeof apiKey !== 'string' || apiKey.trim().length === 0) {
@@ -140,7 +139,7 @@
 			conversations.deleteConversation(currentSelectedConversationId);
 		}
 
-		currentSelectedConversationId = null;
+		// currentSelectedConversationId = null;
 	}
 
 	function handleArchiveClick() {
@@ -148,34 +147,65 @@
 			conversations.toggleConversationArchive(currentSelectedConversationId);
 		}
 
-		currentSelectedConversationId = null;
+		// currentSelectedConversationId = null;
 	}
 
-	let filterRef: HTMLElement;
-	let filterPopperRef: HTMLElement;
-	let isFilterOpen = false;
-	let filterPopperInstance: Popper.Instance | null = null;
-	function handleFilterClick(e: MouseEvent) {
-		isFilterOpen = !isFilterOpen;
-		if (filterPopperInstance === null) {
-			filterPopperInstance = Popper.createPopper(filterRef, filterPopperRef, {
-				placement: 'bottom',
-				modifiers: [
-					{
-						name: 'offset',
-						options: {
-							offset: [0, 8]
-						}
-					}
-				]
-			});
+  function handleFavoriteClick() {
+    if (currentSelectedConversationId !== null) {
+			conversations.toggleConversationFavorite(currentSelectedConversationId);
 		}
+  }
 
-		filterPopperInstance.update();
+	let filterRef: HTMLElement;
+	let isFilterOpen = false;
+
+	function clickOutsideAction<T extends Element>(
+		node: T,
+		{ cb, trigger }: { cb: Function; trigger?: HTMLElement }
+	) {
+		const handleClick = (event: MouseEvent) => {
+      const { target } = event;
+			if (target !== null && !node.contains(target as Node)) {
+        if (trigger) {
+          if (!trigger.contains(target as Node)) {
+            cb();
+          }
+        } else {
+          cb();
+        }
+			}
+		};
+
+		document.addEventListener('click', handleClick, true);
+
+		return {
+			destroy() {
+				document.removeEventListener('click', handleClick, true);
+			}
+		};
+	}
+
+	function handleFilterClick() {
+		isFilterOpen = !isFilterOpen;
+	}
+
+	function handleFilterClickOutside() {
+		isFilterOpen = false;
 	}
 
 	$: filteredConversations = $conversations.filter(
-		(conversation) => conversation.isArchived === $isArchivedFilter
+		(conversation) => {
+      const isArchived = $isArchivedFilter;
+      const isFavorite = $isFavoriteFilter;
+      
+      let check = conversation.isArchived === isArchived;
+      
+      if (isFavorite === true) {
+        check = check && conversation.isFavorite;
+      }
+
+      return check;
+    }
 	);
 
 	let isBotsListVisible = false;
@@ -194,7 +224,9 @@
 
 	let isSidebarVisible = true;
 
-	$: console.log("Messenger", apiKey);
+	$: console.log('Messenger', apiKey);
+
+	$: currentSelectedConversationId = filteredConversations.at(0)?.id || null;
 </script>
 
 <section
@@ -223,12 +255,33 @@
 						<span class="ml-2">Settings</span>
 					</button>
 					<button
-						class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+						class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1 relative"
 						on:click={handleFilterClick}
 						bind:this={filterRef}
 					>
 						<FunnelIcon />
 						<span class="ml-2">Filters</span>
+						{#if isFilterOpen}
+							<div
+								aria-hidden
+								on:click={(e) => {
+									e.stopPropagation();
+								}}
+								use:clickOutsideAction={{ cb: handleFilterClickOutside, trigger: filterRef }}
+								class="absolute z-10 text-md text-left top-full shadow-lg bg-white p-2 rounded-md min-w-[200px] border border-black mt-2"
+							>
+								<div class="space-y-2">
+									<div class="flex items-center space-x-2">
+										<label for="is-archived" class="cursor-pointer">Archived</label>
+										<input type="checkbox" id="is-archived" bind:checked={$isArchivedFilter} />
+									</div>
+                  <div class="flex items-center space-x-2">
+										<label for="is-favorite" class="cursor-pointer">Favorite</label>
+										<input type="checkbox" id="is-favorite" bind:checked={$isFavoriteFilter} />
+									</div>
+								</div>
+							</div>
+						{/if}
 					</button>
 					<button
 						class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
@@ -328,6 +381,15 @@
 								>{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span
 							>
 						</button>
+            <button
+							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+							on:click={handleFavoriteClick}
+						>
+							<HeartIcon />
+							<span class="ml-2"
+								>{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}</span
+							>
+						</button>
 					</div>
 				</div>
 
@@ -371,18 +433,3 @@
 		</div>
 	</section>
 {/if}
-
-<div
-	bind:this={filterPopperRef}
-	class="shadow bg-white p-2 rounded-md min-w-[200px] border border-black mt-2 {isFilterOpen
-		? ''
-		: 'hidden'}"
->
-	<div>Filters</div>
-	<div>
-		<div>
-			<label for="is-archived">Archived</label>
-			<input type="checkbox" id="is-archived" bind:checked={$isArchivedFilter} />
-		</div>
-	</div>
-</div>
