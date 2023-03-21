@@ -19,7 +19,7 @@
 		<div class="flex items-center justify-center h-full">
 			<div class="w-full lg:w-[50%]">
 				<h1 class="text-3xl mb-4 text-center">Update your key</h1>
-				<ApiKeyForm initialValue={$APIKeyStore} />
+				<ApiKeyForm initialValue={$APIKeyStore} CTALabel="Save" onDone={onClose} />
 			</div>
 		</div>
 	</div>

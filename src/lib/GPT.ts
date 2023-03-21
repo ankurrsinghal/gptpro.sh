@@ -22,9 +22,8 @@ export const CheckKey = (key: string) => {
 			Authorization: `Bearer ${key}`,
 			'Content-Type': 'application/json'
 		}
-	})
+	});
 };
-
 
 export const ChatCompletion = (key: string, botId: string, messages: ChatMessage[]) => {
 	return fetch('https://api.openai.com/v1/chat/completions', {
@@ -46,5 +45,11 @@ export const ChatCompletion = (key: string, botId: string, messages: ChatMessage
 			Authorization: `Bearer ${key}`,
 			'Content-Type': 'application/json'
 		}
-	}).then((res) => res.json());
+	}).then(async (res) => {
+		if (res.status === 401 || !res.ok) {
+			throw new Error('Invalid API Key!');
+		}
+
+		return res.json();
+	});
 };

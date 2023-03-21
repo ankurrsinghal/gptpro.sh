@@ -116,6 +116,11 @@
 
 					currentMessagePrompt.set('');
 				})
+				.catch((e) => {
+					if (e.message === 'Invalid API Key!') {
+						isSettingsOpen = true;
+					}
+				})
 				.finally(() => {
 					isLoading = false;
 					setTimeout(() => {
