@@ -7,8 +7,8 @@
   export let onClose: () => void;
 </script>
 <section class="fixed inset-0 z-20" transition:fade={{ duration: 150 }}>
-	<div class="absolute w-full h-full bg-black opacity-75" />
-	<div class="absolute inset-4 bg-white rounded-md p-4">
+	<div class="hidden absolute w-full h-full bg-black opacity-75 md:flex" />
+	<div class="absolute inset-0 bg-white rounded-md p-4 md:inset-4">
 		<button
 			on:click={onClose}
 			class="absolute right-4 top-4 border border-black  p-1 rounded-full hover:bg-black hover:text-white cursor-pointer"

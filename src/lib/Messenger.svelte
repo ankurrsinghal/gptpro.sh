@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
-	import { scrollToBottomAction, hotKeyAction, alertAction } from 'svelte-legos';
+	import { scrollToBottomAction, hotKeyAction, alertAction, windowSizeStore } from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
 	import {
 		conversationsStore,
@@ -37,6 +37,9 @@
 	$: currentSelectedConversation = $conversations.find(
 		(conversation) => conversation.id === currentSelectedConversationId
 	);
+
+	const windowSize = windowSizeStore();
+	$: isMobile = $windowSize.width < 768;
 
 	const { isArchived: isArchivedFilter, isFavorite: isFavoriteFilter } = filtersStore();
 
@@ -119,6 +122,7 @@
 
 	function handleConversationClick(conversation: ChatConversation) {
 		currentSelectedConversationId = conversation.id;
+		if (isMobile) isSidebarVisible = false;
 	}
 
 	function handleDeleteClick() {
@@ -215,7 +219,7 @@
 	class="w-screen h-screen flex"
 	use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}
 >
-	<div class="h-full w-[60px] border-r border-black flex flex-col justify-between p-2">
+	<div class="h-full w-[60px] border-r border-black justify-between p-2 hidden md:flex md:flex-col">
 		<div>
 			<a href="/" class="flex">
 				<img class="shadow" src="/logo.svg" alt="GPTPro.sh" />
@@ -230,7 +234,7 @@
 	</div>
 
 	{#if isSidebarVisible}
-		<div class="h-full w-[300px] bg-gray-100 relative overflow-auto border-r border-black">
+		<div class="absolute left-0 z-10 right-0 h-full bg-gray-100 overflow-auto border-r border-black flex flex-col md:left-0 md:relative md:w-[300px]">
 			<!-- sidebar -->
 			<div class="bg-white border-b border-black">
 				<!-- sidebar header -->
@@ -264,20 +268,20 @@
 							</div>
 						{/if}
 					</button>
+					<button class="w-10 h-10 rounded-md bg-white border border-black md:hidden" on:click={() => (isSettingsOpen = true)}>
+						🔑
+					</button>
 					{#if currentSelectedConversationId !== null}
 						<button
-							class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+							class="hidden ml-auto border border-black items-center justify-center text-sm rounded-md px-2 py-1 md:flex"
 							on:click={() => (isSidebarVisible = false)}
 						>
 							<LeftIcon />
 						</button>
 					{/if}
 				</div>
-				<!-- <div>
-					<input class="p-2 w-full" />
-				</div> -->
 			</div>
-			<div>
+			<div class="flex-1 overflow-auto">
 				{#each pinnedConversations as conversation}
 					<ConversationView
 						{conversation}
@@ -314,51 +318,54 @@
 			<div class="h-full relative flex flex-col">
 				<!-- chat container -->
 				<div class="bg-white border-b border-black">
-					<div class="p-2 flex space-x-3">
+					<div class="p-2 flex space-x-3 justify-between">
 						{#if !isSidebarVisible}
 							<button
 								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
 								on:click={() => (isSidebarVisible = true)}
 							>
-								<RightIcon />
+								<span class="hidden md:flex"><RightIcon /></span>
+								<span class="md:hidden"><LeftIcon /></span>
 							</button>
 						{/if}
-						<button
-							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-							on:click={handlePinClick}
-						>
-							<span>📌</span>
-							<span class="ml-2"
-								>{currentSelectedConversation.isPinned ? 'Unpin' : 'Pin'}</span
+						<div class="flex space-x-3">
+							<button
+								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+								on:click={handlePinClick}
 							>
-						</button>
-						<button
-							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-							use:alertAction={{
-								title: 'Are you sure?',
-								description: "You won't be able to recover this conversation!",
-								onOk: handleDeleteClick
-							}}
-						>
-							<DeleteIcon />
-							<span class="ml-2">Delete</span>
-						</button>
-						<button
-							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-							on:click={handleArchiveClick}
-						>
-							<ArchiveIcon />
-							<span class="ml-2"
-								>{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span
+								<span>📌</span>
+								<span class="hidden md:flex ml-2"
+									>{currentSelectedConversation.isPinned ? 'Unpin' : 'Pin'}</span
+								>
+							</button>
+							<button
+								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+								use:alertAction={{
+									title: 'Are you sure?',
+									description: "You won't be able to recover this conversation!",
+									onOk: handleDeleteClick
+								}}
 							>
-						</button>
-						<button
-							class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-							on:click={handleFavoriteClick}
-						>
-							<HeartIcon />
-							<span class="ml-2">{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}</span>
-						</button>
+								<DeleteIcon />
+								<span class="hidden md:flex ml-2">Delete</span>
+							</button>
+							<button
+								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+								on:click={handleArchiveClick}
+							>
+								<ArchiveIcon />
+								<span class="hidden md:flex ml-2"
+									>{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span
+								>
+							</button>
+							<button
+								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+								on:click={handleFavoriteClick}
+							>
+								<HeartIcon />
+								<span class="hidden md:flex ml-2">{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}</span>
+							</button>
+						</div>
 					</div>
 				</div>
 
