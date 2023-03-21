@@ -1,12 +1,15 @@
 <script lang="ts">
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
-	import { scrollToBottomAction, hotKeyAction, alertAction, windowSizeStore } from 'svelte-legos';
-	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
 	import {
-		conversationsStore,
-		localStorageMiddleware,
-	} from '$lib/conversationsStore';
+		scrollToBottomAction,
+		hotKeyAction,
+		alertAction,
+		windowSizeStore,
+		cssVarStore
+	} from 'svelte-legos';
+	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
+	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
 	import ConversationView from '../lib/ConversationView.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
 	import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
@@ -21,6 +24,8 @@
 	import HeartIcon from './icons/HeartIcon.svelte';
 	import SettingsModal from './SettingsModal.svelte';
 	import BotsListView from './BotsListView.svelte';
+	import SecondaryButton from './SecondaryButton.svelte';
+	import { SecondaryButtonStyles } from './Styles';
 
 	export let apiKey: string;
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
@@ -211,15 +216,17 @@
 	}
 
 	let isSidebarVisible = true;
-	
-  $: pinnedConversations = $conversations.filter(conversation => conversation.isPinned);
+
+	$: pinnedConversations = $conversations.filter((conversation) => conversation.isPinned);
 </script>
 
 <section
 	class="w-full h-full flex overflow-hidden"
 	use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}
 >
-	<div class="h-full w-[60px] border-r border-black justify-between p-2 hidden md:flex md:flex-col">
+	<div
+		class="h-full w-[60px] border-r border-[var(--border-color)] justify-between p-2 hidden md:flex md:flex-col"
+	>
 		<div>
 			<a href="/" class="flex">
 				<img class="shadow" src="/logo.svg" alt="GPTPro.sh" />
@@ -227,23 +234,21 @@
 		</div>
 
 		<div>
-			<button class="w-10 h-10 rounded-md bg-white border border-black" on:click={() => (isSettingsOpen = true)}>
+			<button class={SecondaryButtonStyles + ' w-10 h-10'} on:click={() => (isSettingsOpen = true)}>
 				🔑
 			</button>
 		</div>
 	</div>
 
 	{#if isSidebarVisible}
-		<div class="absolute z-10 w-full h-full bg-gray-100 overflow-auto border-r border-black flex flex-col md:left-0 md:relative md:w-[300px]">
+		<div
+			class="absolute z-10 w-full h-full bg-gray-100 overflow-auto border-r border-[var(--border-color)] flex flex-col md:left-0 md:relative md:w-[300px]"
+		>
 			<!-- sidebar -->
-			<div class="bg-white border-b border-black">
+			<div class="bg-white border-b border-[var(--border-color)]">
 				<!-- sidebar header -->
-				<div class="p-2 flex">
-					<button
-						class="flex border mr-auto border-black items-center justify-center text-sm rounded-md px-2 py-1 relative"
-						on:click={handleFilterClick}
-						bind:this={filterRef}
-					>
+				<div class="p-2 flex justify-between">
+					<button class={SecondaryButtonStyles} on:click={handleFilterClick} bind:this={filterRef}>
 						<FunnelIcon />
 						<span class="ml-2">Filters</span>
 						{#if isFilterOpen}
@@ -253,7 +258,7 @@
 									e.stopPropagation();
 								}}
 								use:clickOutsideAction={{ cb: handleFilterClickOutside, trigger: filterRef }}
-								class="absolute z-20 text-md text-left top-full left-0 shadow-lg bg-white p-2 rounded-md min-w-[120px] border border-black mt-2"
+								class="absolute z-20 text-md text-left top-full left-0 shadow-lg bg-white p-2 rounded-md min-w-[120px] border border-[var(--border-color)] mt-2"
 							>
 								<div class="space-y-2">
 									<div class="flex items-center space-x-2">
@@ -268,12 +273,15 @@
 							</div>
 						{/if}
 					</button>
-					<button class="w-10 h-10 rounded-md bg-white border border-black md:hidden" on:click={() => (isSettingsOpen = true)}>
+					<button
+						class="{SecondaryButtonStyles} md:hidden"
+						on:click={() => (isSettingsOpen = true)}
+					>
 						🔑
 					</button>
 					{#if currentSelectedConversationId !== null}
 						<button
-							class="hidden ml-auto border border-black items-center justify-center text-sm rounded-md px-2 py-1 md:flex"
+							class="{SecondaryButtonStyles} hidden ml-auto md:flex"
 							on:click={() => (isSidebarVisible = false)}
 						>
 							<LeftIcon />
@@ -305,10 +313,7 @@
 			</button>
 
 			{#if isBotsListVisible}
-				<BotsListView
-					onBackClick={() => (isBotsListVisible = false)}
-					onBotClick={handleBotClick}
-				/>
+				<BotsListView onBackClick={() => (isBotsListVisible = false)} onBotClick={handleBotClick} />
 			{/if}
 		</div>
 	{/if}
@@ -317,29 +322,23 @@
 		{#if currentSelectedConversation}
 			<div class="h-full relative flex flex-col">
 				<!-- chat container -->
-				<div class="bg-white border-b border-black">
+				<div class="bg-white border-b border-[var(--border-color)]">
 					<div class="p-2 flex space-x-3 justify-between">
 						{#if !isSidebarVisible}
-							<button
-								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-								on:click={() => (isSidebarVisible = true)}
-							>
+							<SecondaryButton on:click={() => (isSidebarVisible = true)}>
 								<span class="hidden md:flex"><RightIcon /></span>
 								<span class="md:hidden"><LeftIcon /></span>
-							</button>
+							</SecondaryButton>
 						{/if}
 						<div class="flex space-x-3">
-							<button
-								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-								on:click={handlePinClick}
-							>
+							<SecondaryButton on:click={handlePinClick}>
 								<span>📌</span>
-								<span class="hidden md:flex ml-2"
-									>{currentSelectedConversation.isPinned ? 'Unpin' : 'Pin'}</span
-								>
-							</button>
+								<span class="hidden md:flex ml-2">
+									{currentSelectedConversation.isPinned ? 'Unpin' : 'Pin'}
+								</span>
+							</SecondaryButton>
 							<button
-								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+								class={SecondaryButtonStyles}
 								use:alertAction={{
 									title: 'Are you sure?',
 									description: "You won't be able to recover this conversation!",
@@ -349,22 +348,18 @@
 								<DeleteIcon />
 								<span class="hidden md:flex ml-2">Delete</span>
 							</button>
-							<button
-								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-								on:click={handleArchiveClick}
-							>
+							<SecondaryButton on:click={handleArchiveClick}>
 								<ArchiveIcon />
-								<span class="hidden md:flex ml-2"
-									>{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}</span
-								>
-							</button>
-							<button
-								class="flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-								on:click={handleFavoriteClick}
-							>
+								<span class="hidden md:flex ml-2">
+									{currentSelectedConversation.isArchived ? 'UnArchive' : 'Archive'}
+								</span>
+							</SecondaryButton>
+							<SecondaryButton on:click={handleFavoriteClick}>
 								<HeartIcon />
-								<span class="hidden md:flex ml-2">{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}</span>
-							</button>
+								<span class="hidden md:flex ml-2">
+									{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}
+								</span>
+							</SecondaryButton>
 						</div>
 					</div>
 				</div>

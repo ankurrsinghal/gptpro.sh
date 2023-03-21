@@ -20,20 +20,23 @@
 	});
 </script>
 
-<div class="w-full bg-white bottom-2 space-x-5 text-sm p-4 shadow flex items-center justify-center">
+<div
+	class="w-full bg-white bottom-2 space-x-5 text-sm p-4 shadow flex items-center justify-center border-t border-[var(--border-color)]"
+>
 	<textarea
 		use:textareaAutosizeAction
 		use:hotKeyAction={{ code: 'Enter', cb: onSend }}
 		bind:this={localRef}
 		bind:value={$value}
 		{disabled}
-		class="w-full border-2 border-black px-2 py-1 rounded-md outline-none bg-white text-black focus-within:border-blue-700 disabled:opacity-30 disabled:pointer-events-none"
+		placeholder="Enter your message"
+		class="w-full border-2 border-[var(--border-color)] focus:border-black px-2 py-1 rounded-md outline-none bg-white text-black disabled:opacity-30 disabled:pointer-events-none"
 	/>
 	<button
 		class="flex w-8 h-8 rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"
 		on:click={onSend}
 		{disabled}
 	>
-		<SendIcon tailwindClass="w-4 h-4" />
+		<SendIcon />
 	</button>
 </div>
