@@ -6,7 +6,8 @@
 		hotKeyAction,
 		alertAction,
 		windowSizeStore,
-		cssVarStore
+		cssVarStore,
+		messagesStore
 	} from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
 	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
@@ -118,6 +119,7 @@
 				})
 				.catch((e) => {
 					if (e.message === 'Invalid API Key!') {
+						messagesStore('Invalid key!');
 						isSettingsOpen = true;
 					}
 				})
