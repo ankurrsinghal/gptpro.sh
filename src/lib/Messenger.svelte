@@ -8,25 +8,18 @@
 		localStorageMiddleware,
 	} from '$lib/conversationsStore';
 	import ConversationView from '../lib/ConversationView.svelte';
-	import SettingsIcon from '$lib/icons/SettingsIcon.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
-	import CrossIcon from '$lib/icons/CrossIcon.svelte';
 	import DeleteIcon from '$lib/icons/DeleteIcon.svelte';
 	import ArchiveIcon from '$lib/icons/ArchiveIcon.svelte';
 	import FunnelIcon from '$lib/icons/FunnelIcon.svelte';
 	import { filtersStore } from '$lib/filterStore';
-	import { BotsList } from '$lib/Bots';
-	import BackIcon from '$lib/icons/BackIcon.svelte';
 	import LeftIcon from '$lib/icons/LeftIcon.svelte';
 	import RightIcon from '$lib/icons/RightIcon.svelte';
-	import type { TransitionConfig } from 'svelte/transition';
-	import { quadInOut } from 'svelte/easing';
 	import MessageView from '$lib/MessageView.svelte';
 	import MessageInputBar from '$lib/MessageInputBar.svelte';
 	import { writable } from 'svelte/store';
 	import HeartIcon from './icons/HeartIcon.svelte';
 	import SettingsModal from './SettingsModal.svelte';
-	import { slideIn } from './transitions';
 	import BotsListView from './BotsListView.svelte';
 
 	export let apiKey: string;
@@ -271,12 +264,14 @@
 							</div>
 						{/if}
 					</button>
-					<button
-						class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
-						on:click={() => (isSidebarVisible = false)}
-					>
-						<LeftIcon />
-					</button>
+					{#if currentSelectedConversationId !== null}
+						<button
+							class="ml-auto flex border border-black items-center justify-center text-sm rounded-md px-2 py-1"
+							on:click={() => (isSidebarVisible = false)}
+						>
+							<LeftIcon />
+						</button>
+					{/if}
 				</div>
 				<!-- <div>
 					<input class="p-2 w-full" />
