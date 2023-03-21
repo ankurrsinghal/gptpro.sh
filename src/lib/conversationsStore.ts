@@ -1,6 +1,6 @@
-import { readable, writable, type Readable, type Writable } from 'svelte/store';
+import { readable, writable, type Readable } from 'svelte/store';
 import { GetBotNameByBotId } from './Bots';
-import type { Bot, ChatConversation, ChatMessage } from './types';
+import type { ChatConversation, ChatMessage } from './types';
 
 export function localStorageMiddleware<P, T extends Readable<P>>(source: T, key: string): T {
 	const { subscribe: sourceSubscribe, ...rest } = source;
