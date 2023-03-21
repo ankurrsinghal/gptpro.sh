@@ -20,3 +20,5 @@ export interface ChatConversation {
   isFavorite: boolean;
   isPinned: boolean;
 }
+
+export type IconSize = "small" | "medium" | "large";

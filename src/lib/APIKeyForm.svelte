@@ -2,6 +2,8 @@
 	import { onMount } from 'svelte';
 	import { hotKeyAction } from 'svelte-legos';
 	import { SetKeyIfPossible } from './APIKeyStore';
+	import ExternalIcon from './icons/ExternalIcon.svelte';
+	import RightIcon from './icons/RightIcon.svelte';
 
   export let initialValue: string | null = '';
 
@@ -45,7 +47,7 @@
     bind:this={inputRef}
     type="text"
     placeholder="Enter your OpenAI API key (sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)"
-    class="peer block w-full rounded-md border border-gray-200 bg-white p-2 pl-10 text-sm shadow-lg focus:border-black focus:outline-none focus:ring-0 disabled:opacity-70 disabled:pointer-events-none"
+    class="block w-full rounded-md border border-gray-200 p-3 pl-10 text-sm shadow-lg shadow-gray-900 focus:border-gray-200 focus:outline-none focus:ring-0 disabled:opacity-70 disabled:pointer-events-none"
   />
 </div>
 {#if isError}
@@ -57,15 +59,15 @@
   <button
     on:click={onGetStarted}
     {disabled}
-    class="disabled:opacity-70 disabled:pointer-events-none rounded-full border border-black bg-black py-2 px-5 text-sm text-white shadow-lg transition-all hover:bg-white hover:text-black"
-    >Get Started</button
+    class="text-base h-11 px-4 rounded-md gap-2 bg-white text-black hover:bg-white/90 focus:ring-2 focus:ring-white/20 focus:outline-none focus:bg-white/90 inline-flex items-center justify-center border font-medium"
+    >Get Started<span class="ml-2"><RightIcon /></span></button
   >
   <a
-    class="flex items-center justify-center space-x-2 rounded-full border border-gray-300 bg-white py-2 px-5 shadow-lg transition-all hover:border-gray-800"
+    class="flex items-center justify-center space-x-2 rounded-full border border-white text-white  py-2 px-5 shadow-lg transition-all hover:border-slate-400"
     href="https://platform.openai.com/account/api-keys"
     target="_blank"
     rel="noreferrer"
   >
-    <p class="text-sm">Get Key</p>
+    Get Key<span class="ml-2"><ExternalIcon /></span>
   </a>
 </div>
