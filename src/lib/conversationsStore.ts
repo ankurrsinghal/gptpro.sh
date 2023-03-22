@@ -1,6 +1,7 @@
 import { readable, writable, type Readable } from 'svelte/store';
 import { GetBotNameByBotId } from './Bots';
 import type { ChatConversation, ChatMessage, OpenAIControls } from './types';
+import { v4 as uuidv4 } from 'uuid';
 
 export function localStorageMiddleware<P, T extends Readable<P>>(source: T, key: string): T {
 	const { subscribe: sourceSubscribe, ...rest } = source;
@@ -115,9 +116,10 @@ export function conversationsStore() {
 	}
 
 	function createNewConversation(botId: string) {
+		const id = uuidv4();
 		store.update((conversations) => [
 			{
-				id: Math.random().toString(),
+				id,
 				messages: [],
 				subTitle: 'New conversation',
 				title: GetBotNameByBotId(botId),
@@ -130,6 +132,7 @@ export function conversationsStore() {
 			},
 			...conversations
 		]);
+		return id;
 	}
 
 	return {

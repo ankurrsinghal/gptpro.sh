@@ -16,11 +16,11 @@
 		text-indent: -9999em;
 		border-radius: 50%;
 		background: #000;
-		background: -moz-linear-gradient(left, #000 10%, rgba(0, 213, 255, 0) 42%);
-		background: -webkit-linear-gradient(left, #000 10%, rgba(0, 213, 255, 0) 42%);
-		background: -o-linear-gradient(left, #000 10%, rgba(0, 213, 255, 0) 42%);
-		background: -ms-linear-gradient(left, #000 10%, rgba(0, 213, 255, 0) 42%);
-		background: linear-gradient(to right, #000 10%, rgba(0, 213, 255, 0) 42%);
+		background: -moz-linear-gradient(left, #999 10%, rgba(0, 213, 255, 0) 42%);
+		background: -webkit-linear-gradient(left, #999 10%, rgba(0, 213, 255, 0) 42%);
+		background: -o-linear-gradient(left, #999 10%, rgba(0, 213, 255, 0) 42%);
+		background: -ms-linear-gradient(left, #999 10%, rgba(0, 213, 255, 0) 42%);
+		background: linear-gradient(to right, #999 10%, rgba(0, 213, 255, 0) 42%);
 		position: relative;
 		-webkit-animation: load3 1.4s infinite linear;
 		animation: load3 1.4s infinite linear;
@@ -31,7 +31,7 @@
 	.loader:before {
 		width: 50%;
 		height: 50%;
-		background: #000;
+		background: #999;
 		border-radius: 100% 0 0 0;
 		position: absolute;
 		top: 0;

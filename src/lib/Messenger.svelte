@@ -25,6 +25,7 @@
 	import { areEqualShallow } from './utils';
 	import SettingsIcon from './icons/SettingsIcon.svelte';
 	import { openAIGlobalControls } from './openAIControlsStore';
+	import { GetBotById, GetBotNameByBotId } from './Bots';
 
 	export let apiKey: string;
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
@@ -219,8 +220,9 @@
 	let isBotsListVisible = false;
 
 	function handleBotClick(bot: Bot) {
-		conversations.createNewConversation(bot.id);
+		const id = conversations.createNewConversation(bot.id);
 		isBotsListVisible = false;
+		currentSelectedConversationId = id;
 	}
 
 	let isSidebarVisible = true;
@@ -420,7 +422,11 @@
 						</div>
 					</div>
 				</div>
-
+				<div class="p-4 bg-gray-50 text-gray-600 text-center border-b border-[var(--border-color)]">
+					Chatting with <span class="text-black font-bold"
+						>{GetBotById(currentSelectedConversation.botId)?.name}</span
+					>
+				</div>
 				<div class="overflow-auto bg-white relative flex-1" use:scrollToBottomAction>
 					<div class="p-8 space-y-10 text-md min-w-full flex flex-col">
 						{#each currentSelectedConversation.messages as message}
