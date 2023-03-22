@@ -242,6 +242,17 @@
 
 		isConversationSettingsOpen = false;
 	}
+
+	$: currentConversationSelectedModel =
+		currentSelectedConversation?.controls?.model || defaultOpenAIControls.model;
+
+	function handleModelChange(e: Event) {
+		const controls = currentSelectedConversation?.controls || defaultOpenAIControls;
+		const model = (e.target as HTMLSelectElement).value;
+		if (model && model.trim().length > 0) {
+			handleOpenAIControlsUpdateForConversation({ ...controls, model });
+		}
+	}
 </script>
 
 <section class="w-full h-full flex overflow-hidden">
@@ -365,7 +376,10 @@
 									{currentSelectedConversation.isPinned ? 'Unpin' : 'Pin'}
 								</span>
 							</SecondaryButton>
-							<select class={'hidden md:flex ' + SecondaryButtonStyles}
+							<select
+								value={currentConversationSelectedModel}
+								on:change={handleModelChange}
+								class={'hidden md:flex ' + SecondaryButtonStyles}
 								><option value="gpt-3.5-turbo">GPT-3.5-TURBO (Default ChatGPT)</option><option
 									value="gpt-3.5-turbo-0301">GPT-3.5-TURBO-0301</option
 								><option value="gpt-4">GPT-4 (Limited Beta)</option><option value="gpt-4-0314"

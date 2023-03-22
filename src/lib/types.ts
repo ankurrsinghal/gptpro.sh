@@ -25,6 +25,7 @@ export interface ChatConversation {
 export type IconSize = 'small' | 'medium' | 'large';
 
 export interface OpenAIControls {
+	model: string;
 	max_tokens: number;
 	frequency_penalty: number;
 	presence_penalty: number;

@@ -31,6 +31,7 @@ export const ChatCompletion = (
 	botId: string,
 	messages: ChatMessage[],
 	{
+		model,
 		frequency_penalty,
 		max_tokens,
 		presence_penalty,
@@ -41,7 +42,7 @@ export const ChatCompletion = (
 	return fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'post',
 		body: JSON.stringify({
-			model: 'gpt-3.5-turbo-0301',
+			model,
 			stream: false,
 			max_tokens,
 			frequency_penalty,
