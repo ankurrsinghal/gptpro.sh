@@ -359,8 +359,12 @@
 				<PlusIcon />
 			</button>
 
-			{#if isBotsListVisible}
-				<BotsListView onBackClick={() => (isBotsListVisible = false)} onBotClick={handleBotClick} />
+			{#if isBotsListVisible || $conversations.length === 0}
+				<BotsListView
+					displayBackButton={!($conversations.length === 0)}
+					onBackClick={() => (isBotsListVisible = false)}
+					onBotClick={handleBotClick}
+				/>
 			{/if}
 		</div>
 	{/if}
@@ -439,12 +443,19 @@
 					>
 				</div>
 				<div class="overflow-auto bg-white relative flex-1" use:scrollToBottomAction>
-					<div class="p-8 space-y-10 text-md min-w-full flex flex-col">
-						{#each currentSelectedConversation.messages as message}
-							<MessageView {message} />
-						{/each}
-						<Loader visible={isLoading} />
-					</div>
+					{#if currentSelectedConversation.messages.length === 0 && !isLoading}
+						<div class="h-full flex items-center justify-center flex-col">
+							<img class="w-36 h-36" src="/testtube.svg" alt="No data" />
+							<p class="text-gray-400 mt-4">Enter a message ↓ and start chatting ⚡️!</p>
+						</div>
+					{:else}
+						<div class="p-8 space-y-10 text-md min-w-full flex flex-col">
+							{#each currentSelectedConversation.messages as message}
+								<MessageView {message} />
+							{/each}
+							<Loader visible={isLoading} />
+						</div>
+					{/if}
 				</div>
 				<MessageInputBar
 					disabled={isLoading}
@@ -452,6 +463,11 @@
 					value={currentMessagePrompt}
 					ref={inputRef}
 				/>
+			</div>
+		{:else}
+			<div class="h-full flex items-center justify-center flex-col">
+				<img class="w-36 h-36" src="/testtube.svg" alt="No data" />
+				<p class="text-gray-400 mt-4">Pick a bot ← and start chatting ⚡️!</p>
 			</div>
 		{/if}
 	</div>

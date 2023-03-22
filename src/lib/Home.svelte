@@ -52,9 +52,8 @@
 				<h3
 					class="sm:px-10 text-gray-900 font-normal mt-5 text-lg sm:text-xl text-17px md:text-xl tracking-[-0.16px] text-slate-11"
 				>
-					GPTPro is an <span class="text-black font-bold">open-source</span> and
-					<span class="text-black font-bold">free</span> ChatGPT interface with ultra-level enhanced
-					features. Use it like your daily messenger with thousands of prompts to chat.
+					GPTPro is a <span class="text-black font-bold">free</span> ChatGPT interface with ultra-level
+					enhanced features. Use it like your daily messenger with thousands of prompts to chat.
 				</h3>
 			</div>
 			<div class="mt-10 flex flex-col items-start">

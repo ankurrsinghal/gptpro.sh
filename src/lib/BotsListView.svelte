@@ -8,6 +8,7 @@
 
 	export let onBackClick: () => void;
 	export let onBotClick: (bot: Bot) => void;
+	export let displayBackButton: boolean = true;
 
 	let botsListFilterText = '';
 
@@ -21,13 +22,19 @@
 </script>
 
 <div transition:slideIn class="absolute inset-0 z-30 bg-slate-100 flex flex-col">
-	<div class="bg-white p-2 border-b border-[var(--border-color)]">
-		<!-- bots list header -->
-		<SecondaryButton on:click={onBackClick}>
-			<BackIcon />
-			<span class="ml-2">Back</span>
-		</SecondaryButton>
-	</div>
+	{#if displayBackButton}
+		<div class="bg-white p-2 border-b border-[var(--border-color)]">
+			<!-- bots list header -->
+			<SecondaryButton on:click={onBackClick}>
+				<BackIcon />
+				<span class="ml-2">Back</span>
+			</SecondaryButton>
+		</div>
+	{:else}
+		<div class="bg-white p-4 border-b border-[var(--border-color)] text-sm font-semibold">
+			Let's get started. Pick a bot ↓ and start chatting ⚡️!
+		</div>
+	{/if}
 	<div class="bg-gray-100 p-2 border-b border-[var(--border-color)]">
 		<input
 			bind:this={ref.current}

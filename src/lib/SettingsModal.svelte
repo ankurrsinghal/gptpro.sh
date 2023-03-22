@@ -54,6 +54,7 @@
 		{#if currentActiveTab === 1}
 			<div class="h-full overflow-auto">
 				<OpenAiControlsForm
+					subtitle="Define your global settings here, this will apply to all the conversations by default."
 					onUpdate={handleOpenAIControlsUpdate}
 					controls={$openAIGlobalControls}
 				/>

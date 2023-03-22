@@ -5,6 +5,7 @@
 
 	export let onUpdate: (controls: OpenAIControls) => void;
 	export let controls: OpenAIControls;
+	export let subtitle: string;
 
 	const params = controls;
 </script>
@@ -13,7 +14,7 @@
 	<div class="mb-6">
 		<h1 class="text-3xl mb-3">OpenAI Controls</h1>
 		<p class="text-gray-500 font-light text-sm">
-			These settings will only apply to the current selected conversation.
+			{subtitle}
 		</p>
 	</div>
 	<div class="space-y-4">

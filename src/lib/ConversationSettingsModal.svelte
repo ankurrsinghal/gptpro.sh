@@ -31,7 +31,11 @@
 			<CrossIcon size="large" />
 		</button>
 		<div class="flex h-full">
-			<OpenAiControlsForm {onUpdate} controls={params} />
+			<OpenAiControlsForm
+				subtitle="These settings will only apply to the current selected conversation."
+				{onUpdate}
+				controls={params}
+			/>
 		</div>
 	</div>
 </section>
