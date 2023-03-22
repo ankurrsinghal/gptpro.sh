@@ -60,7 +60,7 @@
 		{errorMessage}
 	</div>
 {/if}
-<div class="mx-auto mt-10 max-w-fit flex flex-col space-y-2 lg:flex-row lg:space-y-0 lg:space-x-4">
+<div class="mx-auto mt-10 max-w-fit flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-4">
 	<button
 		on:click={onGetStarted}
 		{disabled}

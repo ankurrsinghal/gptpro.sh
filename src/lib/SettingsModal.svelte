@@ -24,7 +24,7 @@
 	use:hotKeyAction={{ code: 'Escape', cb: onClose }}
 >
 	<div class="hidden absolute w-full h-full bg-black opacity-75 md:flex" />
-	<div class="absolute inset-0 bg-white rounded-md p-4 md:inset-4 flex">
+	<div class="absolute inset-0 bg-white rounded-md p-4 flex flex-col md:inset-4 md:flex-row">
 		<button
 			on:click={onClose}
 			class="absolute right-4 top-4 border border-black  p-1 rounded-full hover:bg-black hover:text-white cursor-pointer"
@@ -32,7 +32,7 @@
 			<CrossIcon size="large" />
 		</button>
 		<div
-			class="flex items-start justify-start h-full flex-col space-y-4 text-xl px-4 border-r border-[var(--border-color)] text-gray-300"
+			class="flex space-x-4 border-b py-4 md:space-x-0 items-start justify-start md:h-full md:flex-col md:space-y-4 text-xl px-4 md:border-r md:border-b-0 border-[var(--border-color)] text-gray-300"
 		>
 			<button
 				on:click={() => (currentActiveTab = 0)}
