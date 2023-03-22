@@ -83,6 +83,7 @@
 								if (conversation.messages.length === 0) {
 									return {
 										...conversation,
+										updatedAt: Date.now(),
 										subTitle: userMessage.content,
 										messages: [
 											...conversation.messages,
@@ -97,6 +98,7 @@
 								} else {
 									return {
 										...conversation,
+										updatedAt: Date.now(),
 										messages: [
 											...conversation.messages,
 											userMessage,
@@ -407,7 +409,10 @@
 								</span>
 							</SecondaryButton>
 							<SecondaryButton on:click={handleFavoriteClick}>
-								<HeartIcon />
+								<HeartIcon
+									fill={currentSelectedConversation.isFavorite ? 'red' : 'none'}
+									stroke={currentSelectedConversation.isFavorite ? 'none' : 'currentColor'}
+								/>
 								<span class="hidden md:flex ml-2">
 									{currentSelectedConversation.isFavorite ? 'Unlike' : 'Like'}
 								</span>

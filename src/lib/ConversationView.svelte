@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ChatConversation } from '$lib/types';
 	import HeartIcon from './icons/HeartIcon.svelte';
+	import * as timeago from 'timeago.js';
 
 	export let conversation: ChatConversation;
 	export let handleConversationClick: (conversation: ChatConversation) => void;
@@ -9,24 +10,32 @@
 
 <div
 	on:click={() => handleConversationClick(conversation)}
-	class="relative px-6 py-4 border-b border-[var(--border-color)] hover:bg-gray-100 cursor-pointer transition-colors {isSelected
+	class="relative p-4 border-b border-[var(--border-color)] hover:bg-gray-100 cursor-pointer transition-colors {isSelected
 		? 'bg-gray-100'
 		: 'bg-white'}"
 	aria-hidden
 >
-	<div class="text-md mb-2 font-[500]">{conversation.title}</div>
-	<div class="text-xs text-[var(--light-text-color)]">{conversation.subTitle}</div>
-	{#if conversation.isFavorite}
-		<div class="flex absolute bottom-2 right-2">
-			<div class="ml-auto">
-				<HeartIcon fill="red" stroke="none" />
+	<div class="mb-4 flex justify-between items-center">
+		<div class="text-md font-[500] flex">
+			{#if conversation.isPinned}
+				<div class="mr-2">📌</div>
+			{/if}
+			{conversation.title}
+		</div>
+		{#if conversation.updatedAt}
+			<div class="text-xs text-gray-600">
+				{timeago.format(conversation.updatedAt)}
 			</div>
+		{/if}
+	</div>
+	<div class="flex justify-between items-center">
+		<div class="text-xs text-[var(--light-text-color)]">
+			{conversation.subTitle.length > 50
+				? conversation.subTitle.slice(0, 50) + '...'
+				: conversation.subTitle}
 		</div>
-	{/if}
-
-	{#if conversation.isPinned}
-		<div class="flex absolute top-2 right-2">
-			<div class="ml-auto">📌</div>
-		</div>
-	{/if}
+		{#if conversation.isFavorite}
+			<HeartIcon fill="red" stroke="none" />
+		{/if}
+	</div>
 </div>

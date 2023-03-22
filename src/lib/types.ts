@@ -20,6 +20,8 @@ export interface ChatConversation {
 	isFavorite: boolean;
 	isPinned: boolean;
 	controls?: OpenAIControls;
+	createdAt: number;
+	updatedAt: number;
 }
 
 export type IconSize = 'small' | 'medium' | 'large';

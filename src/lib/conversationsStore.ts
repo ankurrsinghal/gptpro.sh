@@ -124,7 +124,9 @@ export function conversationsStore() {
 				botId,
 				isArchived: false,
 				isFavorite: false,
-				isPinned: false
+				isPinned: false,
+				createdAt: Date.now(),
+				updatedAt: Date.now()
 			},
 			...conversations
 		]);
