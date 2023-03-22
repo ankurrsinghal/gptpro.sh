@@ -50,6 +50,9 @@
 		<LoaderSpin size={30} />
 	</div>
 {:else}
+	<div class="text-center text-sm mx-auto mb-2 text-yellow-500">
+		GPTPro does not save your key anywhere, it's always with you in your browser 🔓.
+	</div>
 	<div class="relative flex items-center mx-auto w-full max-w-xl px-2.5 sm:px-0">
 		<span class="absolute inset-y-0 left-0 my-2 ml-4 w-5 text-gray-400 lg:ml-3">🔑</span>
 		<input

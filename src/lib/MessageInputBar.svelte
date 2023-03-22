@@ -30,7 +30,7 @@
 		bind:value={$value}
 		{disabled}
 		placeholder="Enter your message"
-		class="w-full border-2 border-[var(--border-color)] focus:border-black px-2 py-1 rounded-md outline-none bg-white text-black disabled:opacity-30 disabled:pointer-events-none"
+		class="w-full border resize-none border-[var(--border-color)] focus:border-black px-4 py-2 rounded-md outline-none bg-white text-black disabled:opacity-30 disabled:pointer-events-none"
 	/>
 	<button
 		class="flex w-8 h-8 aspect-square rounded-full bg-black items-center justify-center text-white font-mono disabled:opacity-30 disabled:pointer-events-none"

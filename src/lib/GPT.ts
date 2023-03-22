@@ -52,7 +52,18 @@ export const ChatCompletion = (
 		}
 	}).then(async (res) => {
 		if (res.status === 401 || !res.ok) {
-			throw new Error('Invalid API Key!');
+			let message = 'An error occured on OpenAI. Check network tab.';
+			const error = await res.json();
+			if (error) {
+				if ('error' in error) {
+					if (error.error.code === 'invalid_api_key') {
+						message = 'Invalid API key provided!';
+					} else {
+						message = error.error.message;
+					}
+				}
+			}
+			throw new Error(message);
 		}
 
 		return res.json();

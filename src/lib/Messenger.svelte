@@ -26,6 +26,7 @@
 	import SettingsIcon from './icons/SettingsIcon.svelte';
 	import { openAIGlobalControls } from './openAIControlsStore';
 	import { GetBotById, GetBotNameByBotId } from './Bots';
+	import { onMount } from 'svelte';
 
 	export let apiKey: string;
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
@@ -120,9 +121,11 @@
 					currentMessagePrompt.set('');
 				})
 				.catch((e) => {
-					if (e.message === 'Invalid API Key!') {
-						messagesStore('Invalid key!');
+					if (e.message === 'Invalid API key provided!') {
+						messagesStore('Invalid API key provided!');
 						isSettingsOpen = true;
+					} else {
+						messagesStore(e.message);
 					}
 				})
 				.finally(() => {
@@ -145,6 +148,10 @@
 		}
 
 		currentSelectedConversationId = null;
+
+		if (isMobile) {
+			isSidebarVisible = true;
+		}
 	}
 
 	function handleArchiveClick() {
@@ -153,6 +160,10 @@
 		}
 
 		currentSelectedConversationId = null;
+
+		if (isMobile) {
+			isSidebarVisible = true;
+		}
 	}
 
 	function handleFavoriteClick() {
@@ -253,6 +264,14 @@
 			handleOpenAIControlsUpdateForConversation({ ...controls, model });
 		}
 	}
+
+	onMount(() => {
+		if (pinnedConversations.length > 0) {
+			currentSelectedConversationId = pinnedConversations[0].id;
+		} else if (filteredConversations.length > 0) {
+			currentSelectedConversationId = filteredConversations[0].id;
+		}
+	});
 </script>
 
 <section class="w-full h-full flex overflow-hidden">
@@ -359,9 +378,9 @@
 				<PlusIcon />
 			</button>
 
-			{#if isBotsListVisible || $conversations.length === 0}
+			{#if isBotsListVisible || pinnedConversations.length + filteredConversations.length === 0}
 				<BotsListView
-					displayBackButton={!($conversations.length === 0)}
+					displayBackButton={!(pinnedConversations.length + filteredConversations.length === 0)}
 					onBackClick={() => (isBotsListVisible = false)}
 					onBotClick={handleBotClick}
 				/>

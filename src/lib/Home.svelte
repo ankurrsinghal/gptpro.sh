@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import ApiKeyForm from './APIKeyForm.svelte';
+	import TwitterIcon from './icons/TwitterIcon.svelte';
 	import Loader from './Loader.svelte';
 	import LoaderSpin from './LoaderSpin.svelte';
 
@@ -23,19 +24,22 @@
 				<img class="w-8 h-8" src="/logo.svg" alt="GPTPro.sh" />
 				<h1 class="text-2xl ml-2 text-black font-extrabold">gptpro</h1>
 			</a>
-			<div class="flex space-x-4">
+			<div class="flex">
 				<a
 					href="https://www.twitter.com/ankurpsinghal"
-					class="text-sm flex items-center justify-center space-x-2 rounded-full border border-gray-300 bg-white py-2 px-3 md:py-2 md:px-5 shadow-lg transition-all hover:border-gray-800"
+					class="text-sm flex items-center justify-center rounded-full bg-[#1D9BF0] text-white py-2 px-3 md:py-2 md:px-5 shadow-lg transition-all hover:bg-[#1A8CD8]"
 					target="_blank"
-					rel="noreferrer">Twitter</a
+					rel="noreferrer"
 				>
-				<a
+					<div class="flex mr-2 w-5 h-5"><TwitterIcon /></div>
+					@ankurpsinghal</a
+				>
+				<!-- <a
 					href="https://www.github.com/ankurrsinghal"
 					class="text-sm flex items-center justify-center space-x-2 rounded-full border border-gray-300 bg-white py-2 px-3 md:py-2 md:px-5 shadow-lg transition-all hover:border-gray-800"
 					target="_blank"
 					rel="noreferrer">Github</a
-				>
+				> -->
 			</div>
 		</header>
 
@@ -69,6 +73,14 @@
 		</div>
 	</div>
 	<div class="bg fixed inset-0" />
+	<div class="fixed bottom-0 bg-white text-center p-2 left-0 text-black text-sm w-full">
+		Work in Progress, please report your issues <a
+			class="underline"
+			href="https://github.com/ankurrsinghal/gptpro.sh/issues"
+			target="_blank"
+			rel="noreferrer">here</a
+		>.
+	</div>
 </div>
 
 <style>

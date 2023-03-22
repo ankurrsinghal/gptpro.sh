@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { hotKeyAction } from 'svelte-legos';
+	import { alertAction, hotKeyAction } from 'svelte-legos';
 	import { fade } from 'svelte/transition';
 	import ApiKeyForm from './APIKeyForm.svelte';
 	import { APIKeyStore } from './APIKeyStore';
@@ -15,6 +15,11 @@
 	function handleOpenAIControlsUpdate(params: OpenAIControls) {
 		openAIGlobalControls.set(params);
 		onClose();
+	}
+
+	function handleLogout() {
+		localStorage.clear();
+		window.location.reload();
 	}
 </script>
 
@@ -41,6 +46,13 @@
 			<button
 				on:click={() => (currentActiveTab = 1)}
 				class={currentActiveTab === 1 ? 'text-black' : ''}>Controls</button
+			>
+			<button
+				use:alertAction={{
+					title: 'Are you sure?',
+					description: 'This will remove all your data, messages and API key!',
+					onOk: handleLogout
+				}}>Logout</button
 			>
 		</div>
 		{#if currentActiveTab === 0}
