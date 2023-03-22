@@ -29,7 +29,8 @@ export const ChatCompletion = (
 	key: string,
 	botId: string,
 	messages: ChatMessage[],
-	{ model, frequency_penalty, max_tokens, presence_penalty, temperature, top_p }: OpenAIControls
+	{ model, frequency_penalty, max_tokens, presence_penalty, temperature, top_p }: OpenAIControls,
+	signal?: AbortSignal
 ) => {
 	return fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'post',
@@ -49,7 +50,8 @@ export const ChatCompletion = (
 			Accept: 'application/json',
 			Authorization: `Bearer ${key}`,
 			'Content-Type': 'application/json'
-		}
+		},
+		signal
 	}).then(async (res) => {
 		if (res.status === 401 || !res.ok) {
 			let message = 'An error occured on OpenAI. Check network tab.';

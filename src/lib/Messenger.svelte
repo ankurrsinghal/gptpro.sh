@@ -27,6 +27,7 @@
 	import { openAIGlobalControls } from './openAIControlsStore';
 	import { GetBotById, GetBotNameByBotId } from './Bots';
 	import { onMount } from 'svelte';
+	import GptLoadingMessages from './GPTLoadingMessages.svelte';
 
 	export let apiKey: string;
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
@@ -63,11 +64,13 @@
 			} as ChatMessage;
 
 			isLoading = true;
+
 			ChatCompletion(
 				apiKey,
 				currentSelectedConversation.botId,
 				currentSelectedConversation.messages.concat([userMessage]),
 				currentSelectedConversation.controls || $openAIGlobalControls
+				// controller.signal
 			)
 				.then((res: any) => {
 					// setData(res);
@@ -124,16 +127,37 @@
 					if (e.message === 'Invalid API key provided!') {
 						messagesStore('Invalid API key provided!');
 						isSettingsOpen = true;
+					} else if (e.message === 'The user aborted a request.') {
 					} else {
 						messagesStore(e.message);
 					}
 				})
 				.finally(() => {
+					// clearTimeout(timer);
 					isLoading = false;
 					setTimeout(() => {
 						$inputRef?.focus();
 					}, 1);
 				});
+
+			// let timer: any;
+			// let controller: any;
+
+			// function start() {
+			// 	if (!currentSelectedConversation) return;
+
+			// 	controller = new AbortController();
+
+			// 	clearTimeout(timer);
+			// 	timer = setTimeout(() => {
+			// 		controller.abort();
+			// 		controller = undefined;
+			// 		isLoading = false;
+			// 		start();
+			// 	}, 1000);
+			// }
+
+			// start();
 		}
 	}
 
@@ -472,7 +496,9 @@
 							{#each currentSelectedConversation.messages as message}
 								<MessageView {message} />
 							{/each}
-							<Loader visible={isLoading} />
+							{#if isLoading}
+								<GptLoadingMessages />
+							{/if}
 						</div>
 					{/if}
 				</div>
