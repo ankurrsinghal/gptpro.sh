@@ -1,4 +1,8 @@
-<div class="sk-fading-circle">
+<script>
+	export let size = 16;
+</script>
+
+<div class="sk-fading-circle" style:width="{size}px" style:height="{size}px">
 	<div class="sk-circle1 sk-circle" />
 	<div class="sk-circle2 sk-circle" />
 	<div class="sk-circle3 sk-circle" />
@@ -15,8 +19,6 @@
 
 <style>
 	.sk-fading-circle {
-		width: 16px;
-		height: 16px;
 		position: relative;
 	}
 

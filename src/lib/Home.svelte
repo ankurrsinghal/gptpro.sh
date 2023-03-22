@@ -1,5 +1,19 @@
-<script>
+<script lang="ts">
+	import { onMount } from 'svelte';
 	import ApiKeyForm from './APIKeyForm.svelte';
+	import Loader from './Loader.svelte';
+	import LoaderSpin from './LoaderSpin.svelte';
+
+	export let onDone: () => void;
+
+	let isLoading = true;
+
+	onMount(() => {
+		setTimeout(() => {
+			isLoading = false;
+			onDone();
+		}, 1500);
+	});
 </script>
 
 <div class="w-full h-full p-4">
@@ -44,7 +58,14 @@
 				</h3>
 			</div>
 			<div class="mt-10 flex flex-col items-start">
-				<ApiKeyForm />
+				{#if !isLoading}
+					<ApiKeyForm />
+				{:else}
+					<div class="mx-auto flex items-center flex-col">
+						<p class="text-center mb-4 text-sm text-black font-bold">Checking your key...</p>
+						<LoaderSpin size={30} />
+					</div>
+				{/if}
 			</div>
 		</div>
 	</div>
