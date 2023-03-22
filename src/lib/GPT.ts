@@ -1,5 +1,4 @@
 import { BotMap } from './Bots';
-import { defaultOpenAIControls } from './constants';
 import type { ChatMessage, OpenAIControls } from './types';
 
 function getSystemPromptFromBotId(botId: string) {
@@ -30,14 +29,7 @@ export const ChatCompletion = (
 	key: string,
 	botId: string,
 	messages: ChatMessage[],
-	{
-		model,
-		frequency_penalty,
-		max_tokens,
-		presence_penalty,
-		temperature,
-		top_p
-	}: OpenAIControls = defaultOpenAIControls
+	{ model, frequency_penalty, max_tokens, presence_penalty, temperature, top_p }: OpenAIControls
 ) => {
 	return fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'post',

@@ -28,8 +28,9 @@
 	import { SecondaryButtonStyles } from './Styles';
 	import SliderIcon from './icons/SliderIcon.svelte';
 	import ConversationSettingsModal from './ConversationSettingsModal.svelte';
-	import { defaultOpenAIControls } from './constants';
 	import { areEqualShallow } from './utils';
+	import SettingsIcon from './icons/SettingsIcon.svelte';
+	import { openAIGlobalControls } from './openAIControlsStore';
 
 	export let apiKey: string;
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
@@ -70,7 +71,7 @@
 				apiKey,
 				currentSelectedConversation.botId,
 				currentSelectedConversation.messages.concat([userMessage]),
-				currentSelectedConversation.controls
+				currentSelectedConversation.controls || $openAIGlobalControls
 			)
 				.then((res: any) => {
 					// setData(res);
@@ -235,7 +236,7 @@
 	function handleOpenAIControlsUpdateForConversation(controls: OpenAIControls) {
 		if (
 			currentSelectedConversationId !== null &&
-			!areEqualShallow(controls, defaultOpenAIControls)
+			!areEqualShallow(controls, $openAIGlobalControls)
 		) {
 			conversations.updateConversationControls(currentSelectedConversationId, controls);
 		}
@@ -244,10 +245,10 @@
 	}
 
 	$: currentConversationSelectedModel =
-		currentSelectedConversation?.controls?.model || defaultOpenAIControls.model;
+		currentSelectedConversation?.controls?.model || $openAIGlobalControls.model;
 
 	function handleModelChange(e: Event) {
-		const controls = currentSelectedConversation?.controls || defaultOpenAIControls;
+		const controls = currentSelectedConversation?.controls || $openAIGlobalControls;
 		const model = (e.target as HTMLSelectElement).value;
 		if (model && model.trim().length > 0) {
 			handleOpenAIControlsUpdateForConversation({ ...controls, model });
@@ -270,7 +271,7 @@
 				class={SecondaryButtonStyles + ' w-10 h-10 text-xl'}
 				on:click={() => (isSettingsOpen = true)}
 			>
-				🔑
+				<SettingsIcon />
 			</button>
 		</div>
 	</div>
@@ -316,7 +317,7 @@
 						class="{SecondaryButtonStyles} md:hidden"
 						on:click={() => (isSettingsOpen = true)}
 					>
-						🔑
+						<SettingsIcon />
 					</button>
 					{#if currentSelectedConversationId !== null}
 						<button
@@ -389,10 +390,8 @@
 								></select
 							>
 							<SecondaryButton on:click={() => (isConversationSettingsOpen = true)}>
-								<span class="hidden md:flex">Settings</span>
-								<span>
-									<SliderIcon />
-								</span>
+								<SliderIcon />
+								<span class="hidden md:flex ml-2">Settings</span>
 							</SecondaryButton>
 						</div>
 						<div class="flex space-x-3">
