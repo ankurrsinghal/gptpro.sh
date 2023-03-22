@@ -6,7 +6,6 @@
 		hotKeyAction,
 		alertAction,
 		windowSizeStore,
-		cssVarStore,
 		messagesStore
 	} from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';

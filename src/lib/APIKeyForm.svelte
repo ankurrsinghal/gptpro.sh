@@ -44,7 +44,7 @@
 </script>
 
 <div class="relative flex items-center mx-auto w-full max-w-xl px-2.5 sm:px-0">
-	<span class="absolute inset-y-0 left-0 my-2 ml-3 w-5 text-gray-400">🔑</span>
+	<span class="absolute inset-y-0 left-0 my-2 ml-4 w-5 text-gray-400 lg:ml-3">🔑</span>
 	<input
 		use:hotKeyAction={{ code: 'Enter', cb: onGetStarted }}
 		{disabled}
@@ -52,7 +52,7 @@
 		bind:this={inputRef}
 		type="text"
 		placeholder="Enter your OpenAI API key (sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)"
-		class="peer block w-full rounded-md border border-gray-200 bg-white p-2 pl-10 pr-12 text-sm shadow-lg focus:border-black focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-75"
+		class="peer block w-full rounded-md border border-gray-200 bg-white p-2 pl-8 text-sm shadow-lg lg:pl-10 focus:border-black focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-75"
 	/>
 </div>
 {#if isError}
@@ -60,7 +60,7 @@
 		{errorMessage}
 	</div>
 {/if}
-<div class="mx-auto mt-10 flex max-w-fit space-x-4">
+<div class="mx-auto mt-10 max-w-fit flex flex-col space-y-2 lg:flex-row lg:space-y-0 lg:space-x-4">
 	<button
 		on:click={onGetStarted}
 		{disabled}
