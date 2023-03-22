@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { hotKeyAction } from 'svelte-legos';
 	import { fade } from 'svelte/transition';
 	import ApiKeyForm from './APIKeyForm.svelte';
 	import { APIKeyStore } from './APIKeyStore';
@@ -7,7 +8,11 @@
 	export let onClose: () => void;
 </script>
 
-<section class="fixed inset-0 z-20" transition:fade={{ duration: 150 }}>
+<section
+	class="fixed inset-0 z-20"
+	transition:fade={{ duration: 150 }}
+	use:hotKeyAction={{ code: 'Escape', cb: onClose }}
+>
 	<div class="hidden absolute w-full h-full bg-black opacity-75 md:flex" />
 	<div class="absolute inset-0 bg-white rounded-md p-4 md:inset-4">
 		<button

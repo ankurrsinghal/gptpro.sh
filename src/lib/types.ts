@@ -11,14 +11,23 @@ export interface ChatMessage {
 }
 
 export interface ChatConversation {
-  id: string;
-  title: string;
-  subTitle: string;
-  messages: ChatMessage[];  
-  botId: string;
-  isArchived: boolean;
-  isFavorite: boolean;
-  isPinned: boolean;
+	id: string;
+	title: string;
+	subTitle: string;
+	messages: ChatMessage[];
+	botId: string;
+	isArchived: boolean;
+	isFavorite: boolean;
+	isPinned: boolean;
+	controls?: OpenAIControls;
 }
 
-export type IconSize = "small" | "medium" | "large";
+export type IconSize = 'small' | 'medium' | 'large';
+
+export interface OpenAIControls {
+	max_tokens: number;
+	frequency_penalty: number;
+	presence_penalty: number;
+	temperature: number;
+	top_p: number;
+}

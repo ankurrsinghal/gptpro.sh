@@ -8,7 +8,7 @@
 		windowSizeStore,
 		messagesStore
 	} from 'svelte-legos';
-	import type { Bot, ChatConversation, ChatMessage } from '$lib/types';
+	import type { Bot, ChatConversation, ChatMessage, OpenAIControls } from '$lib/types';
 	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
 	import ConversationView from '../lib/ConversationView.svelte';
 	import PlusIcon from '$lib/icons/PlusIcon.svelte';
@@ -26,6 +26,10 @@
 	import BotsListView from './BotsListView.svelte';
 	import SecondaryButton from './SecondaryButton.svelte';
 	import { SecondaryButtonStyles } from './Styles';
+	import SliderIcon from './icons/SliderIcon.svelte';
+	import ConversationSettingsModal from './ConversationSettingsModal.svelte';
+	import { defaultOpenAIControls } from './constants';
+	import { areEqualShallow } from './utils';
 
 	export let apiKey: string;
 	const conversations = localStorageMiddleware(conversationsStore(), 'conversations');
@@ -65,7 +69,8 @@
 			ChatCompletion(
 				apiKey,
 				currentSelectedConversation.botId,
-				currentSelectedConversation.messages.concat([userMessage])
+				currentSelectedConversation.messages.concat([userMessage]),
+				currentSelectedConversation.controls
 			)
 				.then((res: any) => {
 					// setData(res);
@@ -224,12 +229,22 @@
 	let isSidebarVisible = true;
 
 	$: pinnedConversations = $conversations.filter((conversation) => conversation.isPinned);
+
+	let isConversationSettingsOpen = false;
+
+	function handleOpenAIControlsUpdateForConversation(controls: OpenAIControls) {
+		if (
+			currentSelectedConversationId !== null &&
+			!areEqualShallow(controls, defaultOpenAIControls)
+		) {
+			conversations.updateConversationControls(currentSelectedConversationId, controls);
+		}
+
+		isConversationSettingsOpen = false;
+	}
 </script>
 
-<section
-	class="w-full h-full flex overflow-hidden"
-	use:hotKeyAction={{ code: 'Escape', cb: () => (isSettingsOpen = false) }}
->
+<section class="w-full h-full flex overflow-hidden">
 	<div
 		class="h-full w-[60px] border-r border-[var(--border-color)] justify-between p-2 hidden md:flex md:flex-col"
 	>
@@ -337,19 +352,36 @@
 				<!-- chat container -->
 				<div class="bg-white border-b border-[var(--border-color)]">
 					<div class="p-2 flex space-x-3 justify-between">
-						{#if !isSidebarVisible}
-							<SecondaryButton on:click={() => (isSidebarVisible = true)}>
-								<span class="hidden md:flex"><RightIcon /></span>
-								<span class="md:hidden"><LeftIcon /></span>
-							</SecondaryButton>
-						{/if}
 						<div class="flex space-x-3">
+							{#if !isSidebarVisible}
+								<SecondaryButton on:click={() => (isSidebarVisible = true)}>
+									<span class="hidden md:flex"><RightIcon /></span>
+									<span class="md:hidden"><LeftIcon /></span>
+								</SecondaryButton>
+							{/if}
 							<SecondaryButton on:click={handlePinClick}>
 								<span>📌</span>
 								<span class="hidden md:flex ml-2">
 									{currentSelectedConversation.isPinned ? 'Unpin' : 'Pin'}
 								</span>
 							</SecondaryButton>
+							<select class={'hidden md:flex ' + SecondaryButtonStyles}
+								><option value="gpt-3.5-turbo">GPT-3.5-TURBO (Default ChatGPT)</option><option
+									value="gpt-3.5-turbo-0301">GPT-3.5-TURBO-0301</option
+								><option value="gpt-4">GPT-4 (Limited Beta)</option><option value="gpt-4-0314"
+									>GPT-4-0314 (Limited Beta)</option
+								><option value="gpt-4-32k">GPT-4-32K (Limited Beta)</option><option
+									value="gpt-4-32k-0314">GPT-4-32K-0314 (Limited Beta)</option
+								></select
+							>
+							<SecondaryButton on:click={() => (isConversationSettingsOpen = true)}>
+								<span class="hidden md:flex">Settings</span>
+								<span>
+									<SliderIcon />
+								</span>
+							</SecondaryButton>
+						</div>
+						<div class="flex space-x-3">
 							<button
 								class={SecondaryButtonStyles}
 								use:alertAction={{
@@ -398,4 +430,12 @@
 
 {#if isSettingsOpen}
 	<SettingsModal onClose={() => (isSettingsOpen = false)} />
+{/if}
+
+{#if isConversationSettingsOpen}
+	<ConversationSettingsModal
+		onUpdate={handleOpenAIControlsUpdateForConversation}
+		controls={currentSelectedConversation?.controls}
+		onClose={() => (isConversationSettingsOpen = false)}
+	/>
 {/if}

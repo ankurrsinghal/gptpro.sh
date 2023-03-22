@@ -1,5 +1,6 @@
 import { BotMap } from './Bots';
-import type { ChatMessage } from './types';
+import { defaultOpenAIControls } from './constants';
+import type { ChatMessage, OpenAIControls } from './types';
 
 function getSystemPromptFromBotId(botId: string) {
 	const bot = BotMap.get(botId);
@@ -25,17 +26,28 @@ export const CheckKey = (key: string) => {
 	});
 };
 
-export const ChatCompletion = (key: string, botId: string, messages: ChatMessage[]) => {
+export const ChatCompletion = (
+	key: string,
+	botId: string,
+	messages: ChatMessage[],
+	{
+		frequency_penalty,
+		max_tokens,
+		presence_penalty,
+		temperature,
+		top_p
+	}: OpenAIControls = defaultOpenAIControls
+) => {
 	return fetch('https://api.openai.com/v1/chat/completions', {
 		method: 'post',
 		body: JSON.stringify({
 			model: 'gpt-3.5-turbo-0301',
 			stream: false,
-			max_tokens: 256,
-			frequency_penalty: 0,
-			presence_penalty: 0,
-			temperature: 0.7,
-			top_p: 1,
+			max_tokens,
+			frequency_penalty,
+			presence_penalty,
+			temperature,
+			top_p,
 			messages: [getSystemPromptFromBotId(botId)].concat(
 				messages.map(({ from, content }) => ({ role: from, content }))
 			)

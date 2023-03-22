@@ -1,19 +1,18 @@
 import { readable, writable, type Readable } from 'svelte/store';
 import { GetBotNameByBotId } from './Bots';
-import type { ChatConversation, ChatMessage } from './types';
+import type { ChatConversation, ChatMessage, OpenAIControls } from './types';
 
 export function localStorageMiddleware<P, T extends Readable<P>>(source: T, key: string): T {
 	const { subscribe: sourceSubscribe, ...rest } = source;
 	const decoratedSubscribe = readable<P>(undefined, (set) => {
 		const unsub = sourceSubscribe((value) => {
 			try {
-        if (typeof value === 'string' || typeof value === 'number') {
-          localStorage.setItem(key, value.toString());
-        }
-				else if (typeof value === 'object') {
+				if (typeof value === 'string' || typeof value === 'number') {
+					localStorage.setItem(key, value.toString());
+				} else if (typeof value === 'object') {
 					localStorage.setItem(key, JSON.stringify(value));
 				} else {
-					throw new Error("Unknown type!");
+					throw new Error('Unknown type!');
 				}
 			} catch (e) {
 				console.warn(e);
@@ -92,6 +91,21 @@ export function conversationsStore() {
 		});
 	}
 
+	function updateConversationControls(id: string, controls: OpenAIControls) {
+		store.update((conversations) => {
+			return conversations.map((conversation) => {
+				if (conversation.id === id) {
+					return {
+						...conversation,
+						controls
+					};
+				}
+
+				return conversation;
+			});
+		});
+	}
+
 	function deleteConversation(id: string) {
 		store.update((conversations) => conversations.filter((conversation) => conversation.id !== id));
 	}
@@ -124,6 +138,7 @@ export function conversationsStore() {
 		toggleConversationPinned,
 		addMessageToConversation,
 		createNewConversation,
-		deleteConversation
+		deleteConversation,
+		updateConversationControls
 	};
 }
