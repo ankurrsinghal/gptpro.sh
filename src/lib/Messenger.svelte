@@ -1,13 +1,7 @@
 <script lang="ts">
 	import { ChatCompletion } from '$lib/GPT';
 	import Loader from '$lib/Loader.svelte';
-	import {
-		scrollToBottomAction,
-		hotKeyAction,
-		alertAction,
-		windowSizeStore,
-		messagesStore
-	} from 'svelte-legos';
+	import { scrollToBottomAction, alertAction, windowSizeStore, messagesStore } from 'svelte-legos';
 	import type { Bot, ChatConversation, ChatMessage, OpenAIControls } from '$lib/types';
 	import { conversationsStore, localStorageMiddleware } from '$lib/conversationsStore';
 	import ConversationView from '../lib/ConversationView.svelte';
@@ -347,7 +341,7 @@
 			</div>
 			<button
 				on:click={() => (isBotsListVisible = true)}
-				class="w-10 h-10 rounded-full bg-black flex items-center justify-center absolute right-4 bottom-4 z-10 text-white"
+				class="w-10 h-10 rounded-full shadow bg-black flex items-center justify-center absolute right-4 bottom-4 z-10 text-white"
 			>
 				<PlusIcon />
 			</button>

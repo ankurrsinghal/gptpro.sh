@@ -12,9 +12,11 @@ let initialValue: OpenAIControls = {
 	top_p: 1
 };
 
+const LOCAL_STORAGE_KEY = 'open-ai-global-controls';
+
 if (isClient) {
 	try {
-		const jsonStr = localStorage.getItem('conversations');
+		const jsonStr = localStorage.getItem(LOCAL_STORAGE_KEY);
 		if (jsonStr !== null) {
 			const openAIControlsFromLocalStorage = JSON.parse(jsonStr) as OpenAIControls;
 			if ('model' in openAIControlsFromLocalStorage) {
@@ -28,5 +30,5 @@ if (isClient) {
 
 export const openAIGlobalControls = localStorageMiddleware(
 	writable<OpenAIControls>(initialValue),
-	'open-ai-global-controls'
+	LOCAL_STORAGE_KEY
 );

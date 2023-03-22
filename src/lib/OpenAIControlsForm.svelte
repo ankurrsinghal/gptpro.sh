@@ -20,7 +20,7 @@
 		<div>
 			<div>GPT Model:</div>
 			<div class="mt-3">
-				<select bind:value={params.model} class={'hidden md:flex ' + SecondaryButtonStyles}
+				<select bind:value={params.model} class={SecondaryButtonStyles}
 					><option value="gpt-3.5-turbo">GPT-3.5-TURBO (Default ChatGPT)</option><option
 						value="gpt-3.5-turbo-0301">GPT-3.5-TURBO-0301</option
 					><option value="gpt-4">GPT-4 (Limited Beta)</option><option value="gpt-4-0314"
