@@ -2,6 +2,7 @@
 	import type { ChatConversation } from '$lib/types';
 	import HeartIcon from './icons/HeartIcon.svelte';
 	import * as timeago from 'timeago.js';
+	import { GetBotNameByBotId } from './Bots';
 
 	export let conversation: ChatConversation;
 	export let handleConversationClick: (conversation: ChatConversation) => void;
@@ -20,7 +21,7 @@
 			{#if conversation.isPinned}
 				<div class="mr-2">📌</div>
 			{/if}
-			{conversation.title}
+			{GetBotNameByBotId(conversation.botId)}
 		</div>
 		{#if conversation.updatedAt}
 			<div class="text-xs text-gray-600">

@@ -50,7 +50,7 @@
 		{disabled}
 		bind:value={key}
 		bind:this={inputRef}
-		type="text"
+		type="password"
 		placeholder="Enter your OpenAI API key (sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxx)"
 		class="peer block w-full rounded-md border border-gray-200 bg-white p-2 pl-8 text-sm shadow-lg lg:pl-10 focus:border-black focus:outline-none focus:ring-0 disabled:pointer-events-none disabled:opacity-75"
 	/>
@@ -64,14 +64,14 @@
 	<button
 		on:click={onGetStarted}
 		{disabled}
-		class="flex items-center justify-center rounded-full border border-black bg-black py-2 px-5 text-white shadow-lg transition-all hover:bg-white hover:text-black disabled:pointer-events-none disabled:opacity-75"
+		class="text-sm md:text-md flex items-center justify-center rounded-full border border-black bg-black py-2 px-5 text-white shadow-lg transition-all hover:bg-white hover:text-black disabled:pointer-events-none disabled:opacity-75"
 		>{CTALabel}
 		{#if CTALabel === DefaultLabel}
 			<span class="ml-2"><RightIcon /></span>
 		{/if}
 	</button>
 	<a
-		class="flex items-center justify-center space-x-2 rounded-full border border-gray-300 bg-white py-2 px-5 shadow-lg transition-all hover:border-gray-800"
+		class="text-sm md:text-md flex items-center justify-center space-x-2 rounded-full border border-gray-300 bg-white py-2 px-5 shadow-lg transition-all hover:border-gray-800"
 		href="https://platform.openai.com/account/api-keys"
 		target="_blank"
 		rel="noreferrer"

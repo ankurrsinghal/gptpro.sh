@@ -17,7 +17,7 @@ export const BotMap: Map<string, Bot> = BotsList.reduce((map, bot) => {
 }, new Map());
 
 export function GetBotNameByBotId(botId: string): string {
-	return BotMap.get(botId)?.name || 'GPTBot';
+	return BotMap.get(botId)?.name || 'GPT';
 }
 
 export function GetBotById(botId: string) {

@@ -223,6 +223,7 @@
 		const id = conversations.createNewConversation(bot.id);
 		isBotsListVisible = false;
 		currentSelectedConversationId = id;
+		if (isMobile) isSidebarVisible = false;
 	}
 
 	let isSidebarVisible = true;
@@ -299,11 +300,19 @@
 								class="absolute z-20 text-md text-left top-full left-0 shadow-lg bg-white p-2 rounded-md min-w-[120px] border border-[var(--border-color)] mt-2"
 							>
 								<div class="space-y-2">
-									<div class="flex items-center space-x-2">
+									<div
+										class="flex items-center space-x-2"
+										on:click={() => (currentSelectedConversationId = null)}
+										aria-hidden
+									>
 										<label for="is-archived" class="cursor-pointer">Archived</label>
 										<input type="checkbox" id="is-archived" bind:checked={$isArchivedFilter} />
 									</div>
-									<div class="flex items-center space-x-2">
+									<div
+										class="flex items-center space-x-2"
+										on:click={() => (currentSelectedConversationId = null)}
+										aria-hidden
+									>
 										<label for="is-favorite" class="cursor-pointer">Favorite</label>
 										<input type="checkbox" id="is-favorite" bind:checked={$isFavoriteFilter} />
 									</div>
@@ -422,9 +431,11 @@
 						</div>
 					</div>
 				</div>
-				<div class="p-4 bg-gray-50 text-gray-600 text-center border-b border-[var(--border-color)]">
+				<div
+					class="p-2 text-sm bg-gray-50 text-gray-600 text-center border-b border-[var(--border-color)]"
+				>
 					Chatting with <span class="text-black font-bold"
-						>{GetBotById(currentSelectedConversation.botId)?.name}</span
+						>{GetBotNameByBotId(currentSelectedConversation.botId)}</span
 					>
 				</div>
 				<div class="overflow-auto bg-white relative flex-1" use:scrollToBottomAction>
