@@ -16,6 +16,8 @@
 		'leading-relaxed',
 		'border border-[var(--border-color)]',
 		'text-sm',
+		'break-words',
+		'break-all',
 		'font-normal',
 		message.from === 'user' ? 'bg-gray-100 text-black ml-auto' : 'bg-white mr-auto text-black'
 	].join(' ')}
