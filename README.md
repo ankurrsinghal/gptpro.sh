@@ -1,38 +1,31 @@
-# create-svelte
+<a href="https://gptpro.sh">
+  <img alt="GPTPro – GPTPro is a free ChatGPT interface with ultra-level enhanced features. Use it like your daily messenger with thousands of prompts to chat." src="https://chatgpt.singhalankur.com/cover-photo.png">
+  <h1 align="center">GPTPro</h1>
+</a>
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/master/packages/create-svelte).
+<p align="center">
+  GPTPro is a free ChatGPT interface with ultra-level enhanced features. Use it like your daily messenger with thousands of prompts to chat.
+</p>
 
-## Creating a project
+<p align="center">
+  <a href="https://twitter.com/ankurpsinghal">
+    <img src="https://img.shields.io/twitter/follow/ankurpsinghal?style=flat&label=%40ankurpsinghal&logo=twitter&color=0bf&logoColor=fff" alt="Twitter" />
+  </a>
+</p>
 
-If you're seeing this, you've probably already done this step. Congrats!
+<br/>
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Introduction
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+GPTPro is a free ChatGPT interface with ultra-level enhanced features. Use it like your daily messenger with thousands of prompts to chat.
 
-## Developing
+## Tech Stack
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- [OpenAI](https://platform.openai.com/) – GPT
+- [SvelteKit](https://kit.svelte.dev/) – framework
+- [SvelteLegos](https://svelte-legos.singhalankur.com/) – utilities
+- [Tailwind](https://tailwindcss.com/) – CSS
 
-```bash
-npm run dev
+## Author
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+- Ankur Singhal ([@ankurpsinghal](https://twitter.com/ankurpsinghal))
